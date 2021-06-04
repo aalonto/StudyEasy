@@ -20,10 +20,10 @@ date_default_timezone_set('UTC');
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
 $sdk = new Aws\Sdk([
-   'credentials' => [
-      'key'    => 'AKIA4WTDCA2IYDFWFGRE',
-      'secret' => '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',
-  ],
+//    'credentials' => [
+//       'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+//       'secret' => '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',
+//   ],
    'region'   => 'us-east-1',
    'version'  => 'latest'
 ]);
@@ -97,7 +97,7 @@ $result = $dynamodb->putItem(array(
 
                         <div class="container">
 
-<form class="well form-horizontal" action="" method="post" mame="registration">
+<form class="well form-horizontal" action="" method="post" name="registration">
 <fieldset>
 
 <!-- Form Name -->
