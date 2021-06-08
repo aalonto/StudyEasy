@@ -1,8 +1,3 @@
-<!-- <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
-<!------ Include the above in your HEAD tag ---------->
-
 <head>
    <link rel="stylesheet" href="css/style.css">
 </head>
@@ -43,8 +38,7 @@
          $eav = $marshaler->marshalJson('{":username": "' . $_POST["user_name"] . '"}');
          $params = [
             'TableName' => $tableName,
-            'KeyConditionExpression' => '#username = :username',
-            'ExpressionAttributeNames' => ['#username' => 'username'],
+            'KeyConditionExpression' => 'username = :username',
             'ExpressionAttributeValues' => $eav
          ];
 
@@ -62,27 +56,24 @@
             $result = $dynamodb->putItem(array(
                'TableName' => $tableName,
                'Item' => array(
-                  'username'      => array('S' => '' . $_POST['user_name'] . ''),
-                  'email'      => array('S' => '' . $_POST['email'] . ''),
-                  'password'      => array('S' => '' . $_POST['user_password'] . ''),
-                  'user_created'      => array('S' => '' . date('d/m/Y h:i:s a', time()) . ''),
-                  //  'first_name'      => array('S' => ''. $_POST['first_name'].''),
-                  //  'last_name'      => array('S' => ''. $_POST['first_name'].''),
-                  //  'birthday'      => array('S' => ''. $_POST['birthday'].''),
+                  'username'      => array('S' => $_POST['user_name']),
+                  'email'      => array('S' => $_POST['email']),
+                  'password'      => array('S' => $_POST['user_password']),
+                  'user_created'      => array('S' => date('d/m/Y h:i:s a', time()))
                )
             ));
 
             $result = $dynamodb->putItem(array(
                'TableName' => 'profile',
                'Item' => array(
-                  'username'      => array('S' => '' . $_POST['user_name'] . ''),
-                  'firstName'      => array('S' => '' . $_POST['first_name'] . ''),
-                  'lastName'      => array('S' => '' . $_POST['last_name'] . ''),
-                  'birthDate'      => array('S' => '' . $_POST['birthday'] . ''),
-                  'location'      => array('S' => '' . $_POST['location'] . ''),
-                  //  'first_name'      => array('S' => ''. $_POST['first_name'].''),
-                  //  'last_name'      => array('S' => ''. $_POST['first_name'].''),
-                  //  'birthday'      => array('S' => ''. $_POST['birthday'].''),
+                  'username'      => array('S' =>  $_POST['user_name']),
+                  'email'      => array('S' => $_POST['email']),
+                  'firstName'      => array('S' => $_POST['first_name']),
+                  'lastName'      => array('S' =>  $_POST['last_name']),
+                  'phone'      => array('S' => $_POST['phone']),
+                  'gender' => array('S' => $_POST['gender']),
+                  'birthDate'      => array('S' => $_POST['birthday'] ),
+                  'location'      => array('S' => $_POST['location'])
                )
             ));
 
@@ -105,11 +96,14 @@
                   <input id="namebox" name="first_name" placeholder="First Name" class="form-control" type="text" required />
                </div>
                <div class="form-group">
-                  <input id="namebox" name="last_name" placeholder="Last Name" class="form-control" type="text" required/>
+                  <input id="namebox" name="last_name" placeholder="Last Name" class="form-control" type="text" required />
                </div>
             </div>
             <div class="form-group">
                <input name="user_name" id="input" placeholder="Username" class="form-control" type="text" required>
+            </div>
+            <div class="form-group">
+               <input name="email" id="input" placeholder="E-Mail Address" class="form-control" type="text" required>
             </div>
             <div class="form-group">
                <input name="user_password" id="input" placeholder="Password" class="form-control" type="password" required>
@@ -118,12 +112,11 @@
                <input name="confirm_password" id="input" placeholder="Confirm Password" class="form-control" type="password" required>
             </div>
             <div class="form-group">
-               <input name="email" id="input" placeholder="E-Mail Address" class="form-control" type="text" required>
+               <input name="birthday" id="input" type="date" class="form-control" required>
             </div>
             <div class="form-group">
-               <input name="birthday" id="input" type="date" required>
+               <input name="phone" id="input" type="number" placeholder="Phone Number" class="form-control" required>
             </div>
-            <br>
             <div class="form-group">
                <select id="input" name="location" class="form-control" required>
                   <option value="Afganistan">Afghanistan</option>
@@ -296,7 +289,7 @@
                   <option value="Papua New Guinea">Papua New Guinea</option>
                   <option value="Paraguay">Paraguay</option>
                   <option value="Peru">Peru</option>
-                  <option value="Phillipines">Philippines</option>
+                  <option value="Phillippines">Philippines</option>
                   <option value="Pitcairn Island">Pitcairn Island</option>
                   <option value="Poland">Poland</option>
                   <option value="Portugal">Portugal</option>
@@ -373,6 +366,15 @@
                   <option value="Zambia">Zambia</option>
                   <option value="Zimbabwe">Zimbabwe</option>
                </select>
+            </div>
+            <div class="form-group">
+            <p>Gender</p>
+               <input type="radio" id="male" name="gender" value="male" checked>
+               <label for="male">Male</label><br>
+               <input type="radio" id="female" name="gender" value="female">
+               <label for="female">Female</label><br>
+               <input type="radio" id="other" name="gender" value="other">
+               <label for="other">Other</label>
             </div>
             <div class="form-group">
                <a href="/" id="signin">Already have an account?</a>
