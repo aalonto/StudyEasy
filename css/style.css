@@ -5,9 +5,10 @@ body {
   line-height: 1.5;
 }
 
-* {
-  margin: 0px;
-  padding: 0px;
+
+.green-theme {
+  color:#fff !important; 
+  background-color:#33b864 !important;
 }
 
 #wrapper {
@@ -92,10 +93,6 @@ body {
   word-spacing: -3px;
   letter-spacing: -2px;
   font-weight: normal;
-}
-
-input:focus {
-    background-color: yellow;
 }
 
 .container, .panel {
