@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , email,gender, phone',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -42,8 +42,12 @@ try {
     $user = $marshaler->unmarshalItem($i);
     $_SESSION['firstName'] = $user['firstName'];
     $_SESSION['lastName'] = $user['lastName'];
+    $_SESSION['gender'] = $user['gender'];
+    $_SESSION['email'] = $user['email'];
+    $_SESSION['phone'] = $user['phone'];
     $_SESSION['birthDate'] = $user['birthDate'];
     $_SESSION['location'] = $user['location'];
+    $_SESSION['friends'] = $user['friends'];
   }
 } catch (DynamoDbException $e) {
   echo "Unable to query:\n";
@@ -78,9 +82,10 @@ try {
       <!-- Left Column -->
       <div class="w3-col m3">
         <!-- Profile -->
+        <!---HERE -->
         <div class="w3-card w3-round w3-white">
           <div class="w3-container">
-            <h4 class="w3-center"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></h4>
+            <h4 class="w3-center"><a href="/profile" id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></h4>
             <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
             <hr>
             <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
