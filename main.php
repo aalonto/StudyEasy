@@ -85,7 +85,7 @@ h5 {
         <!---HERE -->
         <div class="w3-card w3-round w3-white">
           <div class="w3-container">
-            <h4 class="w3-center"><a href="/profile" id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></h4>
+            <h4 class="w3-center"><a href="/profile" id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
             <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
             <hr>
             <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
