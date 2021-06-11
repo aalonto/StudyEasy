@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends, subjects',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , subjects, email,gender, phone',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -42,13 +42,43 @@ try {
     $user = $marshaler->unmarshalItem($i);
     $_SESSION['firstName'] = $user['firstName'];
     $_SESSION['lastName'] = $user['lastName'];
+    $_SESSION['gender'] = $user['gender'];
+    $_SESSION['email'] = $user['email'];
+    $_SESSION['phone'] = $user['phone'];
     $_SESSION['birthDate'] = $user['birthDate'];
     $_SESSION['location'] = $user['location'];
+    $_SESSION['friends'] = $user['friends'];
   }
 } catch (DynamoDbException $e) {
   echo "Unable to query:\n";
   echo $e->getMessage() . "\n";
 }
+
+
+$eav1 = $marshaler->marshalJson('
+      {
+        ":username": "' . $_SESSION['username'] . '"
+      }
+  ');
+
+$params1 = [
+  'TableName' => 'preferences',
+  'KeyConditionExpression' => 'username = :username',
+  'ExpressionAttributeValues' => $eav1
+];
+
+
+try {
+  $result1 = $dynamodb->query($params1);
+  foreach ($result1['Items'] as $i) {
+    $pref = $marshaler->unmarshalItem($i);
+
+  }
+} catch (DynamoDbException $e) {
+  echo "Unable to query:\n";
+  echo $e->getMessage() . "\n";
+}
+
 ?>
 <title>StudyEasy</title>
 <meta charset="UTF-8">
@@ -79,9 +109,10 @@ try {
       <!-- Left Column -->
       <div class="w3-col m3">
         <!-- Profile -->
+        <!---HERE -->
         <div class="w3-card w3-round w3-white">
           <div class="w3-container">
-            <h4 class="w3-center"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></h4>
+            <h4 class="w3-center"><a href="/profile" id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
             <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
             <hr>
             <p><i class="fa fa-user fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
@@ -111,7 +142,28 @@ try {
             </div>
             <button onclick="myFunction('Demo2')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddies</button>
             <div id="Demo2" class="w3-hide w3-container">
-              <p>Some other text..</p>
+              <p>Some other text.. </p>
+            </div>
+            <button onclick="myFunction('Demo4')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddy Preferences</button>
+            <div id="Demo4" class="w3-hide w3-container">
+              <p>Location: 
+              <?php     if(!empty($pref['location'])) {
+              foreach ($pref['location'] as $i) {
+                echo  $i ," " ;
+              }
+            }?></p>
+             <p>Gender: 
+              <?php     if(!empty($pref['gender'])) {
+                echo  $pref['gender'] ;
+            }?></p>
+        <p>Subjects: 
+          <?php     if(!empty($pref['subjects'])) {
+                   foreach ($pref['subjects'] as $i) {
+                     echo  $i ," ";
+              }
+            }?></p>
+              
+              </p>
             </div>
             <button onclick="myFunction('Demo3')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-users fa-fw w3-margin-right"></i> My Buddy Requests</button>
             <div id="Demo3" class="w3-hide w3-container">
@@ -166,45 +218,56 @@ try {
           <div class="w3-col m12">
             <?php include 'search.php'; ?>
 
+          <?php  $scan_response = $dynamodb->scan(array(
+    'TableName' => 'profile' 
+));   
+
+// foreach ($scan_response['Items'] as $music)
+// {
+
+  $count = 0;
+  foreach ($scan_response['Items'] as $i)
+  {
+    $user = $marshaler->unmarshalItem($i);
+
+    if($user['username'] != $_SESSION['username']){
+
+    foreach ($pref['location'] as $loc)
+    {
+    if($user['location'] == $loc){
+      foreach ($pref['subjects'] as $subject)
+      {
+        foreach ($user['subjects'] as $userSub)
+      {
+      if($userSub==$subject){
+
+        if($user['gender'] == $pref['gender']){
+          $count +=1;
+          if($count<4){
+
+?>
+ <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+             
+              <h3> Recommended Buddies</h3><br>
+            
+          
+            </div>
+
             <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
               <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-              <span class="w3-right w3-opacity">1 min</span>
-              <h4>John Doe</h4><br>
+              <!-- <span class="w3-right w3-opacity">1 min</span> -->
+              <h4><?php echo $user['firstName'] ," " ,$user['lastName'] ?> </h4><br>
               <hr class="w3-clear">
               <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-              <div class="w3-row-padding" style="margin:0 -16px">
-                <div class="w3-half">
-                  <img src="/w3images/lights.jpg" style="width:100%" alt="Northern Lights" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/nature.jpg" style="width:100%" alt="Nature" class="w3-margin-bottom">
-                </div>
-              </div>
-              <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>  Like</button>
-              <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>  Comment</button>
+            
+              <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fas fa-user-check"></i> Request</button>
             </div>
 
-            <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-              <img src="/w3images/avatar5.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-              <span class="w3-right w3-opacity">16 min</span>
-              <h4>Jane Doe</h4><br>
-              <hr class="w3-clear">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-              <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>  Like</button>
-              <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>  Comment</button>
-            </div>
-
-            <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-              <img src="/w3images/avatar6.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-              <span class="w3-right w3-opacity">32 min</span>
-              <h4>Angie Jane</h4><br>
-              <hr class="w3-clear">
-              <p>Have you seen this?</p>
-              <img src="/w3images/nature.jpg" style="width:100%" class="w3-margin-bottom">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-              <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>  Like</button>
-              <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>  Comment</button>
-            </div>
+           <?php }}}
+           }
+          
+          }}}}}
+          ?>
 
             <!-- End Middle Column -->
           </div>
