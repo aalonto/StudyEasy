@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends, subjects',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -59,16 +59,17 @@ try {
 <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
-html,
-body,
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-family: "Open Sans", sans-serif
-}
+  html,
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: "Open Sans", sans-serif
+  }
 </style>
+
 <body class="w3-theme-l5">
 
   <!-- Page Container -->
@@ -83,9 +84,11 @@ h5 {
             <h4 class="w3-center"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></h4>
             <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
             <hr>
-            <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
+            <p><i class="fa fa-user fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
             <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['location']; ?></p>
             <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['birthDate']; ?></p>
+            <hr>
+            <p class="w3-center"><span name="editProfile" href="/editProfile.php" class="w3-button green-theme">Edit Profile</span></p>
           </div>
         </div>
         <br>
@@ -95,7 +98,16 @@ h5 {
           <div class="w3-white">
             <button onclick="myFunction('Demo1')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-circle-o-notch fa-fw w3-margin-right"></i> My Subjects</button>
             <div id="Demo1" class="w3-hide w3-container">
-              <p>Some text..</p>
+              <p>
+                <?php
+                // if (!empty($user['subjects'])) {
+                //   foreach ($user['subjects'] as $i) {
+                //     echo "<p>" . $i . "</p>";
+                //   }
+                // }
+                include 'addSubjects.php'
+                ?>
+              </p>
             </div>
             <button onclick="myFunction('Demo2')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddies</button>
             <div id="Demo2" class="w3-hide w3-container">
@@ -129,33 +141,19 @@ h5 {
         </div>
         <br>
 
-        <!-- Interests -->
         <div class="w3-card w3-round w3-white w3-hide-small">
-          <div class="w3-container">
-            <p>Buddies List</p>
-            <p>
-              <?php
-              if(!empty($user['friends'])) {
-              foreach ($user['friends'] as $i) {
-                echo "<p>" . $i . "</p>";
-              }
+          <form action="/" action="post">
+            <input type="submit" name="logOut" class="w3-button w3-block btn" value="Log Out">
+            <?php
+            if (isset($_POST['logOut'])) {
+              session_start();
+              $_SESSION = array();
+              session_destroy();
+              header("Location: home.php");
+              exit();
             }
-
-
-              ?>
-              <!-- <span class="w3-tag w3-small w3-theme-d5">News</span>
-              <span class="w3-tag w3-small w3-theme-d4">W3Schools</span>
-              <span class="w3-tag w3-small w3-theme-d3">Labels</span>
-              <span class="w3-tag w3-small w3-theme-d2">Games</span>
-              <span class="w3-tag w3-small w3-theme-d1">Friends</span>
-              <span class="w3-tag w3-small w3-theme">Games</span>
-              <span class="w3-tag w3-small w3-theme-l1">Friends</span>
-              <span class="w3-tag w3-small w3-theme-l2">Food</span>
-              <span class="w3-tag w3-small w3-theme-l3">Design</span>
-              <span class="w3-tag w3-small w3-theme-l4">Art</span>
-              <span class="w3-tag w3-small w3-theme-l5">Photos</span> -->
-            </p>
-          </div>
+            ?>
+          </form>
         </div>
         <br>
 
@@ -163,7 +161,7 @@ h5 {
       </div>
 
       <!-- Middle Column -->
-      <div class="w3-col m7">
+      <div class="w3-col m9">
         <div class="w3-row-padding">
           <div class="w3-col m12">
             <?php include 'search.php'; ?>
@@ -213,7 +211,7 @@ h5 {
         </div>
       </div>
 
-      <!-- Right Column -->
+      <!-- Right Column
       <div class="w3-col m2">
         <div class="w3-card w3-round w3-white w3-center">
           <div class="w3-container">
@@ -224,9 +222,9 @@ h5 {
             <p><button class="w3-button w3-block w3-theme-l4">Info</button></p>
           </div>
         </div>
-        <br>
+        <br> -->
 
-        <div class="w3-card w3-round w3-white w3-center">
+      <!-- <div class="w3-card w3-round w3-white w3-center">
           <div class="w3-container">
             <p>Friend Request</p>
             <img src="/w3images/avatar6.png" alt="Avatar" style="width:50%"><br>
@@ -241,19 +239,7 @@ h5 {
             </div>
           </div>
         </div>
-        <br>
-
-        <div class="w3-card w3-round w3-white w3-padding-16 w3-center">
-          <p>ADS</p>
-        </div>
-        <br>
-
-        <div class="w3-card w3-round w3-white w3-padding-32 w3-center">
-          <p><i class="fa fa-bug w3-xxlarge"></i></p>
-        </div>
-
-        <!-- End Right Column -->
-      </div>
+        <br> -->
 
       <!-- End Grid -->
     </div>
@@ -282,16 +268,6 @@ h5 {
         x.className = x.className.replace("w3-show", "");
         x.previousElementSibling.className =
           x.previousElementSibling.className.replace(" w3-theme-d1", "");
-      }
-    }
-
-    // Used to toggle the menu on smaller screens when clicking on the menu button
-    function openNav() {
-      var x = document.getElementById("navDemo");
-      if (x.className.indexOf("w3-show") == -1) {
-        x.className += " w3-show";
-      } else {
-        x.className = x.className.replace(" w3-show", "");
       }
     }
   </script>
