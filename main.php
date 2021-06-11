@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , subjects, email,gender, phone',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, email,gender, phone',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -47,7 +47,6 @@ try {
     $_SESSION['phone'] = $user['phone'];
     $_SESSION['birthDate'] = $user['birthDate'];
     $_SESSION['location'] = $user['location'];
-    $_SESSION['friends'] = $user['friends'];
   }
 } catch (DynamoDbException $e) {
   echo "Unable to query:\n";
@@ -72,7 +71,6 @@ try {
   $result1 = $dynamodb->query($params1);
   foreach ($result1['Items'] as $i) {
     $pref = $marshaler->unmarshalItem($i);
-
   }
 } catch (DynamoDbException $e) {
   echo "Unable to query:\n";
@@ -146,23 +144,24 @@ try {
             </div>
             <button onclick="myFunction('Demo4')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddy Preferences</button>
             <div id="Demo4" class="w3-hide w3-container">
-              <p>Location: 
-              <?php     if(!empty($pref['location'])) {
-              foreach ($pref['location'] as $i) {
-                echo  $i ," " ;
-              }
-            }?></p>
-             <p>Gender: 
-              <?php     if(!empty($pref['gender'])) {
-                echo  $pref['gender'] ;
-            }?></p>
-        <p>Subjects: 
-          <?php     if(!empty($pref['subjects'])) {
-                   foreach ($pref['subjects'] as $i) {
-                     echo  $i ," ";
-              }
-            }?></p>
-              
+              <p>Location:
+                <?php
+                if (!empty($pref['location'])) {
+                  foreach ($pref['location'] as $i) {
+                    echo  $i, " ";
+                  }
+                } ?></p>
+              <p>Gender:
+                <?php if (!empty($pref['gender'])) {
+                  echo  $pref['gender'];
+                } ?></p>
+              <p>Subjects:
+                <?php if (!empty($pref['subjects'])) {
+                  foreach ($pref['subjects'] as $i) {
+                    echo  $i, " ";
+                  }
+                } ?></p>
+
               </p>
             </div>
             <button onclick="myFunction('Demo3')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-users fa-fw w3-margin-right"></i> My Buddy Requests</button>
@@ -216,58 +215,59 @@ try {
       <div class="w3-col m9">
         <div class="w3-row-padding">
           <div class="w3-col m12">
-            <?php include 'search.php'; ?>
+            <?php include 'search.php';
+            $scan_response = $dynamodb->scan(array(
+              'TableName' => 'profile'
+            ));
 
-          <?php  $scan_response = $dynamodb->scan(array(
-    'TableName' => 'profile' 
-));   
+            // foreach ($scan_response['Items'] as $music)
+            // {
 
-// foreach ($scan_response['Items'] as $music)
-// {
+            $count = 0;
+            foreach ($scan_response['Items'] as $i) {
+              $user = $marshaler->unmarshalItem($i);
 
-  $count = 0;
-  foreach ($scan_response['Items'] as $i)
-  {
-    $user = $marshaler->unmarshalItem($i);
+              if ($user['username'] != $_SESSION['username']) {
+                if(!empty($pref)){
 
-    if($user['username'] != $_SESSION['username']){
+                foreach ($pref['location'] as $loc) {
+                  if ($user['location'] == $loc) {
+                    foreach ($pref['subjects'] as $subject) {
+                      foreach ($user['subjects'] as $userSub) {
+                        if ($userSub == $subject) {
 
-    foreach ($pref['location'] as $loc)
-    {
-    if($user['location'] == $loc){
-      foreach ($pref['subjects'] as $subject)
-      {
-        foreach ($user['subjects'] as $userSub)
-      {
-      if($userSub==$subject){
+                          if ($user['gender'] == $pref['gender']) {
+                            $count += 1;
+                            if ($count < 4) {
 
-        if($user['gender'] == $pref['gender']){
-          $count +=1;
-          if($count<4){
+            ?>
+                              <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
 
-?>
- <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-             
-              <h3> Recommended Buddies</h3><br>
-            
-          
-            </div>
+                                <h3> Recommended Buddies</h3><br>
 
-            <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-              <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-              <!-- <span class="w3-right w3-opacity">1 min</span> -->
-              <h4><?php echo $user['firstName'] ," " ,$user['lastName'] ?> </h4><br>
-              <hr class="w3-clear">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            
-              <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fas fa-user-check"></i> Request</button>
-            </div>
 
-           <?php }}}
-           }
-          
-          }}}}}
-          ?>
+                              </div>
+
+                              <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                                <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                                <!-- <span class="w3-right w3-opacity">1 min</span> -->
+                                <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
+                                <hr class="w3-clear">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+                                <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fas fa-user-check"></i> Request</button>
+                              </div>
+
+            <?php }
+                          }
+                        }
+                      }
+                    }}
+                  }
+                }
+              }
+            }
+            ?>
 
             <!-- End Middle Column -->
           </div>

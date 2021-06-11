@@ -2,10 +2,31 @@
 
 use Aws\DynamoDb\Exception\DynamoDbException;
 
-if (!empty($user['subjects'])) {
-    foreach ($user['subjects'] as $i) {
-        echo "<p>" . $i . "</p>";
-    }
+$tableName = 'subjects';
+
+
+$eav = $marshaler->marshalJson('
+      {
+        ":username": "' . $_SESSION['username'] . '"
+      }
+  ');
+
+$params = [
+  'TableName' => $tableName,
+  'KeyConditionExpression' => 'username = :username',
+  'ExpressionAttributeValues' => $eav
+];
+
+
+try {
+  $result = $dynamodb->query($params);
+  foreach ($result['Items'] as $i) {
+    $subject = $marshaler->unmarshalItem($i);
+    echo "<p>" . $subject['subject'] . "</p>";
+  }
+} catch (DynamoDbException $e) {
+  echo "Unable to query:\n";
+  echo $e->getMessage() . "\n";
 }
 ?>
 <p>
@@ -14,30 +35,23 @@ if (!empty($user['subjects'])) {
     <button type="submit" class="w3-button green-theme"><i class="fa fa-plus"></i></button>
     <?php
     if (isset($_POST['subject'])) {
-        $key = $marshaler->marshalJson('
-        {
-            {"username": {"S": "' . $_SESSION['username'] . '"}}
-        }
-        ');
 
-        $eav = $marshaler->marshalJson('
+        $item = $marshaler->marshalJson('
         {
-            {":s":  {"SS": ["' . $_POST['subject'] . '"]}}
+            "username":  "'.$_SESSION['username'].'",
+            "subject": "' . $_POST['subject'] . '"
         }
         ');
 
         $params = [
             'TableName' => $tableName,
-            'Key' => $key,
-            'UpdateExpression' => 'ADD subjects :s',
-            'ExpressionAttributeValues' =>  $eav,
-            'ReturnValues' => 'UPDATED_NEW'
+            'Item' => $item
         ];
 
         try {
-            $result = $dynamodb->updateItem($params);
-            // header("Location: main.php");
-            // exit();
+            $result = $dynamodb->putItem($params);
+            header("Location: main.php");
+            exit();
         } catch (DynamoDbException $e) {
             echo "Unable to update item:\n";
             echo $e->getMessage() . "\n";
