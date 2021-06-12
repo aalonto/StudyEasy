@@ -15,10 +15,6 @@
    use Aws\DynamoDb\Marshaler;
 
    $sdk = new Aws\Sdk([
-      //    'credentials' => [
-      //       'key'    => 'AKIA4WTDCA2IYDFWFGRE',
-      //       'secret' => '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',
-      //   ],
       'region'   => 'us-east-1',
       'version'  => 'latest'
    ]);
@@ -72,7 +68,7 @@
                   'lastName'      => array('S' =>  $_POST['last_name']),
                   'phone'      => array('S' => $_POST['phone']),
                   'gender' => array('S' => $_POST['gender']),
-                  'birthDate'      => array('S' => $_POST['birthday'] ),
+                  'birthDate'      => array('S' => $_POST['birthday']),
                   'location'      => array('S' => $_POST['location'])
                )
             ));
@@ -119,14 +115,14 @@
             </div>
             <div class="form-group">
                <select id="input" name="location" class="form-control" required>
-               <?php 
-               include 'countries.php';
-               ?>
+                  <?php
+                  include 'countries.php';
+                  ?>
 
                </select>
             </div>
             <div class="form-group">
-            <p>Gender</p>
+               <p>Gender</p>
                <input type="radio" id="male" name="gender" value="male" checked>
                <label for="male">Male</label><br>
                <input type="radio" id="female" name="gender" value="female">

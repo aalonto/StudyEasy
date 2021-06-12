@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , email,gender, phone',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , email,gender, phone, subjects',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -79,6 +79,31 @@ try {
   echo $e->getMessage() . "\n";
 }
 
+// $key = $marshaler->marshalJson('
+//     {
+//         "username": ' . $_SESSION['username'] . '
+//     }
+// ');
+
+// $eav = array(
+//   ':s' => array(
+//     'First'=> array('S'=>'one')
+//   )
+
+// );
+
+// $params = [
+//   'TableName' => 'profile',
+//   'Key' => $key,
+//   'UpdateExpression' => 
+// 'set subjects = :s',
+//   'ExpressionAttributeValues'=> $eav,
+//   'ReturnValues' => 'UPDATED_NEW'
+// ];
+
+// $result = $dynamodb->updateItem($params);
+
+
 ?>
 <title>StudyEasy</title>
 <meta charset="UTF-8">
@@ -111,13 +136,14 @@ h5 {
         <!---HERE -->
         <div class="w3-card w3-round w3-white">
           <div class="w3-container">
-            <h4 class="w3-center"><a href="/profile" id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
+            <h4 class="w3-center"><a  id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
             <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
             <hr>
             <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
             <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['location']; ?></p>
             <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['birthDate']; ?></p>
           </div>
+          <a href="/edit"><input  class="w3-center" type="submit" id=" edit" name="edit" value= "Edit" ></a>
         </div>
         <br>
 
@@ -126,7 +152,13 @@ h5 {
           <div class="w3-white">
             <button onclick="myFunction('Demo1')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-circle-o-notch fa-fw w3-margin-right"></i> My Subjects</button>
             <div id="Demo1" class="w3-hide w3-container">
-              <p>Some text..</p>
+            <p>
+          <?php     
+           if(!empty($user['subjects'])) 
+                   foreach ($user['subjects'] as $i) {
+                     echo  $i ," ";
+              }
+            ?>
             </div>
             <button onclick="myFunction('Demo2')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddies</button>
             <div id="Demo2" class="w3-hide w3-container">
@@ -227,7 +259,9 @@ h5 {
 // foreach ($scan_response['Items'] as $music)
 // {
 
+  
   $count = 0;
+
   foreach ($scan_response['Items'] as $i)
   {
     $user = $marshaler->unmarshalItem($i);
@@ -246,6 +280,19 @@ h5 {
         if($user['gender'] == $pref['gender']){
           $count +=1;
           if($count<4){
+            $eav = $marshaler->marshalJson('
+            {
+              ":username": "' . $user['username'] . '"
+            }
+        ');
+
+      $params = [
+        'TableName' => 'users',
+        'ProjectionExpression' => 'user_created',
+        'KeyConditionExpression' => 'username = :username',
+        'ExpressionAttributeValues' => $eav
+      ];
+
 
 ?>
  <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
@@ -257,12 +304,12 @@ h5 {
 
             <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
               <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-              <!-- <span class="w3-right w3-opacity">1 min</span> -->
+              <span class="w3-right w3-opacity">User Joined On: <?php $date?></span>
               <h4><?php echo $user['firstName'] ," " ,$user['lastName'] ?> </h4><br>
               <hr class="w3-clear">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+              <p>Gender: <?php echo $user['gender'] ?> </p>
             
-              <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fas fa-user-check"></i> Request</button>
+              <button type="button" ><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme" ></i>Request</button>
             </div>
 
            <?php }}}
