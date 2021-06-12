@@ -7,13 +7,13 @@ switch (@parse_url($_SERVER['REQUEST_URI'])['path']) {
     case '/':
         require 'home.php';
         break;
-    case '/register':
+    case '/register.php':
         require 'register.php';
         break;
     case '/main.php':
         require 'main.php';
         break;
-    case '/edit':
+    case '/editProfile.php':
         require 'editProfile.php';
         break;
     default:

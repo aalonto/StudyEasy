@@ -45,7 +45,77 @@ $marshaler = new Marshaler();
 
 ?>
 
+<?php
+						if (isset($_POST['update'])) {
+							if (!(empty($_POST['firstName']) || empty($_POST['lastName'])  || empty($_POST['location']) || empty($_POST['birthDate']) || empty($_POST['gender']) || empty($_POST['phone']) || empty($_POST['email']))) {
+                            
+                            $tableName= 'profile';
+                            $eav = $marshaler->marshalJson('
+                                {
+                                    ":fN": "' . $_POST['firstName'] . '" ,
+                                    ":lN": "' . $_POST['lastName'] . '" ,
+                                    ":gender": "' . $_POST['gender'] . '" ,
+                                    ":birth": "' . $_POST['birthDate'] . '",
+                                    ":phone": "' . $_POST['phone'] . '",
+                                    ":email": "' . $_POST['email'] . '" ,
+                                    ":loc": "' . $_POST['location'] . '", 
+                                    ":desc": "' . $_POST['desc'] . '" 
+                                }
+                            ');
+                            
+                            $params = [
+                                'TableName' => $tableName,
+                                'Key' => array(
+									'username'      => array('S' => '' . $_SESSION['username'] . '')),
+                                'UpdateExpression' => 
+                                    'set firstName = :fN, lastName = :lN, gender = :gender,
+                                     birthDate = :birth,phone = :phone, email = :email , #loc=:loc, description=:desc'
+                                    
+                                    ,
+                                'ExpressionAttributeNames' => ['#loc' => 'location'],
+                                'ExpressionAttributeValues'=> $eav,
+                                'ReturnValues' => 'UPDATED_NEW'
+                            ];
+                            $result = $dynamodb->updateItem($params);
 
+
+                            $eav = $marshaler->marshalJson('
+      {
+        ":username": "' . $_SESSION['username'] . '"
+      }
+  ');
+
+$params = [
+  'TableName' => $tableName,
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, subjects, email,gender, phone, description',
+  'KeyConditionExpression' => 'username = :username',
+  'ExpressionAttributeNames' => ['#loc' => 'location'],
+  'ExpressionAttributeValues' => $eav
+];
+
+
+try {
+  $result = $dynamodb->query($params);
+  foreach ($result['Items'] as $i) {
+    $user = $marshaler->unmarshalItem($i);
+    $_SESSION['firstName'] = $user['firstName'];
+    $_SESSION['lastName'] = $user['lastName'];
+    $_SESSION['gender'] = $user['gender'];
+    $_SESSION['email'] = $user['email'];
+    $_SESSION['phone'] = $user['phone'];
+    $_SESSION['birthDate'] = $user['birthDate'];
+    $_SESSION['location'] = $user['location'];
+    $_SESSION['description'] = $user['description'];
+  }
+} catch (DynamoDbException $e) {
+  echo "Unable to query:\n";
+  echo $e->getMessage() . "\n";
+}
+                            }
+                        }
+						
+
+						?>
 
 
 <html>
@@ -71,6 +141,7 @@ $marshaler = new Marshaler();
 							</div>
 						</div>
 					</div>
+                  
 				</div>
 			</div>
 			<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
@@ -84,46 +155,46 @@ $marshaler = new Marshaler();
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="fName">First Name</label>
-									<input type="text" class="form-control" name="firstName" id="firstName" value=<?php echo $_SESSION['firstName'] ?>>
+									<input type="text" class="form-control" name="firstName" id="firstName" value=<?php echo $_SESSION['firstName'] ?> required>
 								</div>
 							</div>
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="lastName">Last Name</label>
-									<input type="text" class="form-control" name="lastName" id="lastName" value=<?php echo $_SESSION['lastName'] ?>>
+									<input type="text" class="form-control" name="lastName" id="lastName" value=<?php echo $_SESSION['lastName'] ?> required>
 								</div>
 							</div>
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="phone">Phone</label>
-									<input type="tel" class="form-control" name="phone" id="phone" value=<?php echo $_SESSION['phone'] ?>>
+									<input type="tel" pattern="[0-9]{10}" class="form-control" name="phone" id="phone" value=<?php echo $_SESSION['phone'] ?> required>
 								</div>
 							</div>
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="email">Email</label>
-									<input type="email" class="form-control" name="email" id="email" value=<?php echo $_SESSION['email'] ?>>
+									<input type="email" class="form-control" name="email" id="email" value=<?php echo $_SESSION['email'] ?> required>
 								</div>
 							</div>
 
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="birthday">Birthday</label>
-									<input type="date" class="form-control" name="birthDate" id="birthDate" value=<?php echo $_SESSION['birthDate'] ?>>
+									<input type="date" class="form-control" name="birthDate" id="birthDate" value=<?php echo $_SESSION['birthDate'] ?> required>
 								</div>
 							</div>
 
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="gender">Gender</label>
-									<input type="date" class="form-control" name="gender" id="gender" value=<?php echo $_SESSION['gender'] ?>>
+									<input type="text" class="form-control" name="gender" id="gender" value=<?php echo $_SESSION['gender'] ?> required>
 								</div>
 							</div>
 
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="location">Location</label>
-									<select class="form-control" name="location" id="location" value=<?php echo $_SESSION['location'] ?>>
+									<select class="form-control" name="location" id="location" value=<?php echo $_SESSION['location'] ?> required>
 
 										<?php
 										include 'countries.php';
@@ -132,29 +203,16 @@ $marshaler = new Marshaler();
 									</select>
 								</div>
 							</div>
-						</div>
-						<?php
-						if (isset($_POST['update'])) {
-							if (empty($_POST['firstName']) || empty($_POST['lastName'])  || empty($_POST['location']) || empty($_POST['birthDate']) || empty($_POST['gender']) || empty($_POST['phone']) || empty($_POST['email'])) {
-								$msg = "You left one or more of the required fields.";
-								echo $msg;
-							} else {
-								// $eav = $marshaler->marshalJson('{":fN": "' . $_POST['firstName'] . '"}');
+					
 
-								// 	// dynamodb table update (NEW ATTRIBUTE)
-								// 	$params = [
-								// 		'TableName' => 'profile',
-								// 		'Key' => ''. $_SESSION['username'] .'',
-								// 		'UpdateExpression' => 'set firstName = :fN',
-								// 		'ExpressionAttributeValues' => $eav,
-								// 		'ReturnValues' => 'UPDATED_NEW'
-								// 	];
-
-																}
-															}
-								// 	$result = $dynamodb->updateItem($params);
-
-						?>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="desc">Description</label>
+									<input type="text" class="form-control" name="desc" id="desc" value=<?php echo $_SESSION['description'] ?>>
+								</div>
+							</div>
+                            </div>
+						
 						<div class="text-right">
 							<input type="submit" id="update" class="w3-button w3-block green-theme w3-left-align  " name="update" value="Update">
 						</div>
