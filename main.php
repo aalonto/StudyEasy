@@ -268,18 +268,18 @@ try {
               echo "<script>
               window.location.href = 'userProfile.php';
               </script>";
-            }
-            if (!empty($pref)) {
-              foreach ($scan_response['Items'] as $i) {
-                $user = $marshaler->unmarshalItem($i);
-                if ($user['username'] != $_SESSION['username']) {
-                  foreach ($friends['Items'] as $j) {
-                    $friend = $marshaler->unmarshalItem($j);
-                    if ($friend['person1'] != $_SESSION['username'] || $friend['person2'] != $user['username']) {
+						}
+            if(!empty($pref)){
+            foreach ($scan_response['Items'] as $i) {
+              $user = $marshaler->unmarshalItem($i);
+              if ($user['username'] != $_SESSION['username']) {
+                foreach ($friends['Items'] as $j) {
+                  $friend = $marshaler->unmarshalItem($j);
+                  if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
 
-                      if ($friend['person2'] != $_SESSION['username'] || $friend['person1'] != $user['username']) {
+                    if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
 
-                        if ($user['location'] == $pref['location']) {
+                      if ($user['location'] == $pref['location']) {
                           foreach ($subjects['Items'] as $x) {
                             $subject = $marshaler->unmarshalItem($x);
                             if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject']) {

@@ -14,17 +14,8 @@
     foreach ($scan_response['Items'] as $i) {
         $user = $marshaler->unmarshalItem($i);
         $username = $user['username'];
-        if (isset($_POST['addButton'])) {
-            $result = $dynamodb->putItem(array(
-                'TableName' => 'friends',
-                'Item' => array(
-                    'username1'      => array('S' => $_SESSION['username']),
-                    'username2'    => array('S' => $_POST['buddyName']),
-                    'status'    => array('S' => "pending")
-                )
-            ));
-        }
-        if ($_POST['username'] == $username) {
+     
+    if ($_POST['username'] == $username) {
         echo '<li>' . $username . '                  
                           <form method="post">
                             <input type="hidden" name="buddyName" value="' . $username . '"> 
@@ -34,6 +25,18 @@
         }
         }
         echo '</ul>';
+    }
+
+    if (isset($_POST['addButton'])) {
+        $result = $dynamodb->putItem(array(
+            'TableName' => 'friends',
+            'Item' => array(
+                'username1'      => array('S' => $_SESSION['username']),
+                'username2'    => array('S' => $_POST['buddyName']),
+                'status'    => array('S' => "pending")
+            )
+        ));
+
     }
 
     ?>
