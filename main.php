@@ -264,7 +264,7 @@ try {
               window.location.href = 'userProfile.php';
               </script>";
 						}
-
+            if(!empty($pref)){
             foreach ($scan_response['Items'] as $i) {
               $user = $marshaler->unmarshalItem($i);
               if ($user['username'] != $_SESSION['username']) {
@@ -330,7 +330,7 @@ try {
                   }
                 }
               }
-            }
+            }}
             ?>
 
             <!-- End Middle Column -->
