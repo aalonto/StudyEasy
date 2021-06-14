@@ -218,6 +218,39 @@ try {
 						</div>
 						</form>
 
+						<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+					<form action="" method="post" name="pref">
+						<div class="row gutters">
+							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+								<h6 class="mb-2 text-success">Preferences</h6>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="fName">Location</label>
+									<input type="text" class="form-control" name="locPref" id="locPref" value="loc">
+								</div>
+							</div>
+
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="fName">Subject</label>
+									<input type="text" class="form-control" name="subPref" id="subPref" value="subPref">
+								</div>
+							</div>
+							</div>
+
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="fName">Gender</label>
+									<input type="text" class="form-control" name="genderPref" id="genderPref" value="genderPref">
+								</div>
+							</div>
+							</div>
+							<div class="text-right">
+							<input type="submit" id="update" class="w3-button w3-block green-theme w3-left-align  " name="update" value="Update">
+						</div>
+						</form>
+
 						<?php if (isset($_POST['subjectSub'])) {
 
 							if (isset($_POST['subject']) && !empty($_POST['subject'])) {
