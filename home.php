@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $params = [
     'TableName' => $tableName,
-    'ProjectionExpression' => 'username, password',
+    'ProjectionExpression' => 'username, password, image',
     'KeyConditionExpression' => 'username = :username',
     'ExpressionAttributeValues'=> $eav
 ];
@@ -49,6 +49,7 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
             $userExists = true;
             if($user['password'] == $password) {
                 $_SESSION['username'] = $user['username'];
+                $_SESSION['image'] =  $user['image'];
                 header('Location: main.php');
                 exit();
             } else {

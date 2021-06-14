@@ -137,7 +137,15 @@ try {
         <div class="w3-card w3-round w3-white">
           <div class="w3-container">
             <h4 class="w3-center"><a id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
-            <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
+            <?php
+            if (!empty($_SESSION['image'])) {
+              $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/'. $_SESSION['image'].'';
+            } else {
+              $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/blank.png';
+            }
+            ?>
+            </p>
+            <p class="w3-center"><img src=<?php echo $src; ?> class="w3-circle" style="height:106px;width:106px" alt="Avatar">
             <hr>
             <p><i class="fa fa-user fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
             <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['location']; ?></p>
@@ -260,65 +268,66 @@ try {
               echo "<script>
               window.location.href = 'userProfile.php';
               </script>";
-						}
-            if(!empty($pref)){
-            foreach ($scan_response['Items'] as $i) {
-              $user = $marshaler->unmarshalItem($i);
-              if ($user['username'] != $_SESSION['username']) {
-                foreach ($friends['Items'] as $j) {
-                  $friend = $marshaler->unmarshalItem($j);
-                  if ($friend['person1'] != $_SESSION['username'] || $friend['person2'] != $user['username']) {
+            }
+            if (!empty($pref)) {
+              foreach ($scan_response['Items'] as $i) {
+                $user = $marshaler->unmarshalItem($i);
+                if ($user['username'] != $_SESSION['username']) {
+                  foreach ($friends['Items'] as $j) {
+                    $friend = $marshaler->unmarshalItem($j);
+                    if ($friend['person1'] != $_SESSION['username'] || $friend['person2'] != $user['username']) {
 
-                    if ($friend['person2'] != $_SESSION['username'] || $friend['person1'] != $user['username']) {
+                      if ($friend['person2'] != $_SESSION['username'] || $friend['person1'] != $user['username']) {
 
-                      if ($user['location'] == $pref['location']) {
+                        if ($user['location'] == $pref['location']) {
                           foreach ($subjects['Items'] as $x) {
                             $subject = $marshaler->unmarshalItem($x);
-                            if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject'] ) {
-                            if ($user['gender'] == $pref['gender']) {
-                              $count += 1;
-                              if ($count < 4) {
-                                $eav = $marshaler->marshalJson('
+                            if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject']) {
+                              if ($user['gender'] == $pref['gender']) {
+                                $count += 1;
+                                if ($count < 4) {
+                                  $eav = $marshaler->marshalJson('
                                     {
                                       ":username": "' . $user['username'] . '"
                                     }
                                 ');
 
-                                $params = [
-                                  'TableName' => 'users',
-                                  'ProjectionExpression' => 'user_created',
-                                  'KeyConditionExpression' => 'username = :username',
-                                  'ExpressionAttributeValues' => $eav
-                                ];
+                                  $params = [
+                                    'TableName' => 'users',
+                                    'ProjectionExpression' => 'user_created',
+                                    'KeyConditionExpression' => 'username = :username',
+                                    'ExpressionAttributeValues' => $eav
+                                  ];
 
 
             ?>
-                                <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                                  <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
 
-                                  <h3> Recommended Buddies</h3><br>
+                                    <h3> Recommended Buddies</h3><br>
 
 
-                                </div>
-                                <form action="" method="post" name="newUser">
-                                <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-                                  <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-                                  <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
-                                  <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
-                                  <p> <?php echo $user['description'] ?> </p>
-                                  <hr class="w3-clear">
-                                  <p>Gender: <?php echo $user['gender'] ?> </p>
+                                  </div>
+                                  <form action="" method="post" name="newUser">
+                                    <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                                      <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                                      <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
+                                      <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
+                                      <p> <?php echo $user['description'] ?> </p>
+                                      <hr class="w3-clear">
+                                      <p>Gender: <?php echo $user['gender'] ?> </p>
 
-                                  <button type="button"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>Request</button>
+                                      <button type="button"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>Request</button>
 
-                                  <!-- <button type="button2"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>View Profile</button>
+                                      <!-- <button type="button2"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>View Profile</button>
                                   <input type="hidden" name="view" value=<?php echo $user['username'] ?>> -->
 
-                                  <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
-															    <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
-                                </div>
-                                </form>
+                                      <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
+                                      <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
+                                    </div>
+                                  </form>
 
             <?php }
+                              }
                             }
                           }
                         }
@@ -327,7 +336,7 @@ try {
                   }
                 }
               }
-            }}
+            }
             ?>
 
             <!-- End Middle Column -->
