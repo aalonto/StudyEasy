@@ -350,6 +350,30 @@ body {
   z-index: 10;
 }
 
+#buddySearch {
+  /* Remove default list styling */
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#buddySearch li {
+  column-count: 3;
+  column-gap: inherit;
+  border: 1px solid #ddd; /* Add a border to all links */
+  margin-top: -1px; /* Prevent double borders */
+  background-color: white; /* Grey background color */
+  padding: 60px; /* Add some padding */
+  text-decoration: none; /* Remove default text underline */
+  font-size: 18px; /* Increase the font-size */
+  color: black; /* Add a black text color */
+  display: inline-block;/* Make it into a block element to fill the whole list */
+}
+
+#buddySearch li :hover:not(.header) {
+  background-color: #f6f6f6; /* Add a hover effect to all links, except for headers */
+}
+
 
 
 			              

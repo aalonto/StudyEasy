@@ -1,5 +1,4 @@
 <?php
-use Aws\DynamoDb\Exception\DynamoDbException;
 $scan_response = $dynamodb->scan(array(
     'TableName' => 'subjects'
 ));

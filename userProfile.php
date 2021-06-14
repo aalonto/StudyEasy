@@ -218,8 +218,8 @@ $friends = $dynamodb->scan(array(
 
 foreach ($friends['Items'] as $j) {
 	$friend = $marshaler->unmarshalItem($j);
-	if (($friend['person1'] == $_SESSION['username'] && $friend['person2'] == $user['username']) &&  $friend['status'] == "friends"
-	|| ($friend['person2'] == $_SESSION['username'] && $friend['person1'] == $user['username'] &&  $friend['status'] == "friends")) {
+	if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "friends"
+	|| ($friend['username2'] == $_SESSION['username'] && $friend['username1'] == $user['username'] &&  $friend['status'] == "friends")) {
 
 
 ?>
@@ -244,7 +244,7 @@ foreach ($friends['Items'] as $j) {
 
 			<?php } 
 
-if (($friend['person1'] == $_SESSION['username'] && $friend['person2'] == $user['username']) &&  $friend['status'] == "request") {
+if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "request") {
 	?>
 <div class="row gutters">
 			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">

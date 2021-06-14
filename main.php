@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , subjects, email,gender, phone,description',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, email,gender, phone, description',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -143,8 +143,6 @@ try {
             <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['location']; ?></p>
             <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['birthDate']; ?></p>
             <hr>
-            <!-- <p class="w3-center"><span name="editProfile" href="/edit" class="w3-button green-theme">Edit Profile</span></p> -->
-
             <p><a class="w3-center" href="/editProfile.php"><input class="w3-button green-theme" type="submit" id=" edit" name="edit" value="Edit Profile"></a></p>
           </div>
         </div>
@@ -238,9 +236,8 @@ try {
       <div class="w3-col m9">
         <div class="w3-row-padding">
           <div class="w3-col m12">
-            <?php include 'search.php'; ?>
-
-            <?php $scan_response = $dynamodb->scan(array(
+            <?php include 'search.php';
+            $scan_response = $dynamodb->scan(array(
               'TableName' => 'profile'
             ));
 
@@ -270,9 +267,9 @@ try {
               if ($user['username'] != $_SESSION['username']) {
                 foreach ($friends['Items'] as $j) {
                   $friend = $marshaler->unmarshalItem($j);
-                  if ($friend['person1'] != $_SESSION['username'] || $friend['person2'] != $user['username']) {
+                  if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
 
-                    if ($friend['person2'] != $_SESSION['username'] || $friend['person1'] != $user['username']) {
+                    if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
 
                       if ($user['location'] == $pref['location']) {
                           foreach ($subjects['Items'] as $x) {
