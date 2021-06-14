@@ -18,11 +18,12 @@ $tableName = 'profile';
     <h6 class="w3-opacity">Search by Username</h6>
     <form action="" value=userSearch method="post">
         <input type="text" placeholder="Search Username" class="w3-border w3-padding" name="username">
-        <button type="submit" class="w3-button green-theme"><i class="fa fa-search"></i> Search</button>
+        <button type="submit" name="searchButton" class="w3-button green-theme"><i class="fa fa-search"></i> Search</button>
     </form>
     <?php
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST["searchButton"])) {
         if (isset($_POST['username'])) {
+            echo '<ul>';
             $eav = $marshaler->marshalJson('
                         {
                         ":buddy": "' . $_POST['username'] . '"
@@ -41,7 +42,15 @@ $tableName = 'profile';
                 foreach ($result['Items'] as $i) {
                     $user = $marshaler->unmarshalItem($i);
                     if ($user['username'] != $_SESSION['username']) {
-                        echo '<p>' . $user['username'] . '<p>';
+                        echo '<li>' .  $user["username"] . '
+                    
+                                    <a class="w3-button green-theme" href="/main.php" name="addUserButton">Add Buddy</a>';
+                                    if (isset($_GET["addUserButton"])) {
+                                        addUser($_SESSION['username'], $user['username'], $dynamodb, $marshaler);
+                                        //$_SESSION['addBuddy'] = $_POST['addUser'];
+                                        //include 'addBuddy.php';
+                                    }
+                        echo '</li>';
                     }
                 }
             } catch (DynamoDbException $e) {
@@ -49,7 +58,9 @@ $tableName = 'profile';
                 echo $e->getMessage() . "\n";
             }
         }
+        echo '</table>';
     }
+
     ?>
 </div>
 <br>
@@ -75,6 +86,7 @@ $tableName = 'profile';
     <?php
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['location'])) {
+            echo '<ul id="buddySearch">';
             $eav = $marshaler->marshalJson('
                         {
                         ":loc": "' . $_POST['location'] . '"
@@ -93,7 +105,7 @@ $tableName = 'profile';
                     $result = $dynamodb->scan($params);
                     foreach ($result['Items'] as $i) {
                         $user = $marshaler->unmarshalItem($i);
-                        echo '<p>' . $user['username'] . '</p>';
+                        echo '<li><a href="#">' . $user['username'] . '</a></li>';
                     }
 
                     if (isset($result['LastEvaluatedKey'])) {
@@ -110,6 +122,32 @@ $tableName = 'profile';
                 echo "Unable to query:\n";
                 echo $e->getMessage() . "\n";
             }
+        }
+        echo '</ul>';
+    }
+
+    function addUser($user1, $user2, $dynamodb, $marshaler)
+    {
+        $item = $marshaler->marshalJson('
+                    {
+                        "username1":  "' . $user1 . '",
+                        "username2": "' . $user2 . '",
+                        "status": "pending"                  
+                    }
+                    ');
+
+        $params = [
+            'TableName' => 'friends',
+            'Item' => $item
+        ];
+
+        try {
+            $dynamodb->putItem($params);
+            header("Location: main.php");
+            exit();
+        } catch (DynamoDbException $e) {
+            echo "Unable to update item:\n";
+            echo $e->getMessage() . "\n";
         }
     }
     ?>
