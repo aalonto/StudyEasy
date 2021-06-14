@@ -30,6 +30,21 @@ date_default_timezone_set('UTC');
 
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
+use Aws\S3\S3Client;
+use Aws\S3\Exception\S3Exception;
+
+$bucketName = 's3778713-a2-s3';
+
+// Connect to AWS
+$s3 = new S3Client([
+	'credentials' => [
+        'key' => 'AKIA3QI3KNZZCV7JMUVJ',
+		'secret' => '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'
+
+    ],
+	'version' => 'latest',
+	'region'  => 'us-east-1'
+]);
 
 $sdk = new Aws\Sdk([
 	'region'   => 'us-east-1',
@@ -46,11 +61,11 @@ $marshaler = new Marshaler();
 ?>
 
 <?php
-						if (isset($_POST['update'])) {
-							if (!(empty($_POST['firstName']) || empty($_POST['lastName'])  || empty($_POST['location']) || empty($_POST['birthDate']) || empty($_POST['gender']) || empty($_POST['phone']) || empty($_POST['email']))) {
-                            
-                            $tableName= 'profile';
-                            $eav = $marshaler->marshalJson('
+if (isset($_POST['update'])) {
+	if (!(empty($_POST['firstName']) || empty($_POST['lastName'])  || empty($_POST['location']) || empty($_POST['birthDate']) || empty($_POST['gender']) || empty($_POST['phone']) || empty($_POST['email']))) {
+
+		$tableName = 'profile';
+		$eav = $marshaler->marshalJson('
                                 {
                                     ":fN": "' . $_POST['firstName'] . '" ,
                                     ":lN": "' . $_POST['lastName'] . '" ,
@@ -62,60 +77,59 @@ $marshaler = new Marshaler();
                                     ":desc": "' . $_POST['desc'] . '" 
                                 }
                             ');
-                            
-                            $params = [
-                                'TableName' => $tableName,
-                                'Key' => array(
-									'username'      => array('S' => '' . $_SESSION['username'] . '')),
-                                'UpdateExpression' => 
-                                    'set firstName = :fN, lastName = :lN, gender = :gender,
-                                     birthDate = :birth,phone = :phone, email = :email , #loc=:loc, description=:desc'
-                                    
-                                    ,
-                                'ExpressionAttributeNames' => ['#loc' => 'location'],
-                                'ExpressionAttributeValues'=> $eav,
-                                'ReturnValues' => 'UPDATED_NEW'
-                            ];
-                            $result = $dynamodb->updateItem($params);
+
+		$params = [
+			'TableName' => $tableName,
+			'Key' => array(
+				'username'      => array('S' => '' . $_SESSION['username'] . '')
+			),
+			'UpdateExpression' =>
+			'set firstName = :fN, lastName = :lN, gender = :gender,
+                                     birthDate = :birth,phone = :phone, email = :email , #loc=:loc, description=:desc',
+			'ExpressionAttributeNames' => ['#loc' => 'location'],
+			'ExpressionAttributeValues' => $eav,
+			'ReturnValues' => 'UPDATED_NEW'
+		];
+		$result = $dynamodb->updateItem($params);
 
 
-                            $eav = $marshaler->marshalJson('
+		$eav = $marshaler->marshalJson('
       {
         ":username": "' . $_SESSION['username'] . '"
       }
   ');
 
-$params = [
-  'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, subjects, email,gender, phone, description',
-  'KeyConditionExpression' => 'username = :username',
-  'ExpressionAttributeNames' => ['#loc' => 'location'],
-  'ExpressionAttributeValues' => $eav
-];
+		$params = [
+			'TableName' => $tableName,
+			'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, subjects, email,gender, phone, description',
+			'KeyConditionExpression' => 'username = :username',
+			'ExpressionAttributeNames' => ['#loc' => 'location'],
+			'ExpressionAttributeValues' => $eav
+		];
 
 
-try {
-  $result = $dynamodb->query($params);
-  foreach ($result['Items'] as $i) {
-    $user = $marshaler->unmarshalItem($i);
-    $_SESSION['firstName'] = $user['firstName'];
-    $_SESSION['lastName'] = $user['lastName'];
-    $_SESSION['gender'] = $user['gender'];
-    $_SESSION['email'] = $user['email'];
-    $_SESSION['phone'] = $user['phone'];
-    $_SESSION['birthDate'] = $user['birthDate'];
-    $_SESSION['location'] = $user['location'];
-    $_SESSION['description'] = $user['description'];
-  }
-} catch (DynamoDbException $e) {
-  echo "Unable to query:\n";
-  echo $e->getMessage() . "\n";
+		try {
+			$result = $dynamodb->query($params);
+			foreach ($result['Items'] as $i) {
+				$user = $marshaler->unmarshalItem($i);
+				$_SESSION['firstName'] = $user['firstName'];
+				$_SESSION['lastName'] = $user['lastName'];
+				$_SESSION['gender'] = $user['gender'];
+				$_SESSION['email'] = $user['email'];
+				$_SESSION['phone'] = $user['phone'];
+				$_SESSION['birthDate'] = $user['birthDate'];
+				$_SESSION['location'] = $user['location'];
+				$_SESSION['description'] = $user['description'];
+			}
+		} catch (DynamoDbException $e) {
+			echo "Unable to query:\n";
+			echo $e->getMessage() . "\n";
+		}
+	}
 }
-                            }
-                        }
-						
 
-						?>
+
+?>
 
 
 <html>
@@ -129,8 +143,17 @@ try {
 						<div class="account-settings">
 							<div class="user-profile">
 								<div class="user-avatar">
-									<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
+									<?php if (!empty($_SESSION['image'])) {
+										echo '<img src="https://studyeasy.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '">';
+									} else {
+										echo '<img src="https://studyeasy.s3.us-east-1.amazonaws.com/blank.png">';
+									} ?>
 								</div>
+								<form action="imgUpload.php" method="post" enctype="multipart/form-data">
+									<input type="file" name="img" style="display:none;" accept="image/*">
+									<input type="button" name="upload" value="Upload Profile Picture" onClick="img.click();">
+								</form>
+
 								<h5 class="user-name"><?php echo $_SESSION['username'] ?></h5>
 								<h6 class="user-email"><?php echo $_SESSION['email'] ?></h6>
 							</div>
@@ -141,81 +164,81 @@ try {
 							</div>
 						</div>
 					</div>
-                  
+
 				</div>
 			</div>
 			<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
 				<div class="card h-100">
 					<div class="card-body">
-					<form action="" method="post" name="edit">
-						<div class="row gutters">
-							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-								<h6 class="mb-2 text-success">Personal Details</h6>
-							</div>
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="fName">First Name</label>
-									<input type="text" class="form-control" name="firstName" id="firstName" value=<?php echo $_SESSION['firstName'] ?> required>
+						<form action="" method="post" name="edit">
+							<div class="row gutters">
+								<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+									<h6 class="mb-2 text-success">Personal Details</h6>
 								</div>
-							</div>
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="lastName">Last Name</label>
-									<input type="text" class="form-control" name="lastName" id="lastName" value=<?php echo $_SESSION['lastName'] ?> required>
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="fName">First Name</label>
+										<input type="text" class="form-control" name="firstName" id="firstName" value=<?php echo $_SESSION['firstName'] ?> required>
+									</div>
 								</div>
-							</div>
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="phone">Phone</label>
-									<input type="tel" pattern="[0-9]{10}" class="form-control" name="phone" id="phone" value=<?php echo $_SESSION['phone'] ?> required>
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="lastName">Last Name</label>
+										<input type="text" class="form-control" name="lastName" id="lastName" value=<?php echo $_SESSION['lastName'] ?> required>
+									</div>
 								</div>
-							</div>
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="email">Email</label>
-									<input type="email" class="form-control" name="email" id="email" value=<?php echo $_SESSION['email'] ?> required>
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="phone">Phone</label>
+										<input type="tel" pattern="[0-9]{10}" class="form-control" name="phone" id="phone" value=<?php echo $_SESSION['phone'] ?> required>
+									</div>
+								</div>
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="email">Email</label>
+										<input type="email" class="form-control" name="email" id="email" value=<?php echo $_SESSION['email'] ?> required>
+									</div>
+								</div>
+
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="birthday">Birthday</label>
+										<input type="date" class="form-control" name="birthDate" id="birthDate" value=<?php echo $_SESSION['birthDate'] ?> required>
+									</div>
+								</div>
+
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="gender">Gender</label>
+										<input type="text" class="form-control" name="gender" id="gender" value=<?php echo $_SESSION['gender'] ?> required>
+									</div>
+								</div>
+
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="location">Location</label>
+										<select class="form-control" name="location" id="location" value=<?php echo $_SESSION['location'] ?> required>
+
+											<?php
+											include 'countries.php';
+											?>
+
+										</select>
+									</div>
+								</div>
+
+
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="desc">Description</label>
+										<input type="text" class="form-control" name="desc" id="desc" value=<?php echo $_SESSION['description'] ?>>
+									</div>
 								</div>
 							</div>
 
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="birthday">Birthday</label>
-									<input type="date" class="form-control" name="birthDate" id="birthDate" value=<?php echo $_SESSION['birthDate'] ?> required>
-								</div>
+							<div class="text-right">
+								<input type="submit" id="update" class="w3-button w3-block green-theme w3-left-align  " name="update" value="Update">
 							</div>
-
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="gender">Gender</label>
-									<input type="text" class="form-control" name="gender" id="gender" value=<?php echo $_SESSION['gender'] ?> required>
-								</div>
-							</div>
-
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="location">Location</label>
-									<select class="form-control" name="location" id="location" value=<?php echo $_SESSION['location'] ?> required>
-
-										<?php
-										include 'countries.php';
-										?>
-
-									</select>
-								</div>
-							</div>
-					
-
-                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="desc">Description</label>
-									<input type="text" class="form-control" name="desc" id="desc" value=<?php echo $_SESSION['description'] ?>>
-								</div>
-							</div>
-                            </div>
-						
-						<div class="text-right">
-							<input type="submit" id="update" class="w3-button w3-block green-theme w3-left-align  " name="update" value="Update">
-						</div>
 						</form>
 
 						<?php if (isset($_POST['subjectSub'])) {

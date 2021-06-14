@@ -15,12 +15,11 @@
         $user = $marshaler->unmarshalItem($i);
         $username = $user['username'];
         if (isset($_POST['addButton'])) {
-            $_SESSION['addBuddy'] = $_POST['buddyName'];
             $result = $dynamodb->putItem(array(
                 'TableName' => 'friends',
                 'Item' => array(
                     'username1'      => array('S' => $_SESSION['username']),
-                    'username2'    => array('S' => $_SESSION['addBuddy']),
+                    'username2'    => array('S' => $_POST['buddyName']),
                     'status'    => array('S' => "pending")
                 )
             ));
