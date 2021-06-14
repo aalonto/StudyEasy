@@ -1,10 +1,14 @@
 <?php
-
 use Aws\DynamoDb\Exception\DynamoDbException;
+$scan_response = $dynamodb->scan(array(
+    'TableName' => 'subjects'
+));
 
-if (!empty($user['subjects'])) {
-    foreach ($user['subjects'] as $i) {
-        echo "<p>" . $i . "</p>";
+foreach ($scan_response['Items'] as $i) {
+    $subject = $marshaler->unmarshalItem($i);
+    if ($_SESSION['username'] == $subject['username']) {
+
+        echo "<p>" . $subject['subject'] . "</p>";
     }
 }
 ?>
@@ -14,34 +18,14 @@ if (!empty($user['subjects'])) {
     <button type="submit" class="w3-button green-theme"><i class="fa fa-plus"></i></button>
     <?php
     if (isset($_POST['subject'])) {
-        $key = $marshaler->marshalJson('
-        {
-            {"username": {"S": "' . $_SESSION['username'] . '"}}
-        }
-        ');
 
-        $eav = $marshaler->marshalJson('
-        {
-            {":s":  {"SS": ["' . $_POST['subject'] . '"]}}
-        }
-        ');
-
-        $params = [
-            'TableName' => $tableName,
-            'Key' => $key,
-            'UpdateExpression' => 'ADD subjects :s',
-            'ExpressionAttributeValues' =>  $eav,
-            'ReturnValues' => 'UPDATED_NEW'
-        ];
-
-        try {
-            $result = $dynamodb->updateItem($params);
-            // header("Location: main.php");
-            // exit();
-        } catch (DynamoDbException $e) {
-            echo "Unable to update item:\n";
-            echo $e->getMessage() . "\n";
-        }
+        $result = $dynamodb->putItem(array(
+            'TableName' => 'subjects',
+            'Item' => array(
+                'username'      => array('S' => $_SESSION['username']),
+                'subject'    => array('S' => $_POST['subject'])
+            )
+        ));
     }
     ?>
 </form>
