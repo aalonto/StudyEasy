@@ -75,7 +75,7 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
       <div class="l-part">
         <input type="text" placeholder="Username" class="input-1" name="username" required/>
         <input type="password" placeholder="Password" name="password" class="input-2" required/>
-        <button type="submit" class="btn"/>Log In</button>
+        <button type="submit" class="btn">Log In</button>
       </div>
     </form>
   </div>
