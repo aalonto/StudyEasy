@@ -1,19 +1,3 @@
-<?php
-date_default_timezone_set('UTC');
-
-use Aws\DynamoDb\Exception\DynamoDbException;
-use Aws\DynamoDb\Marshaler;
-
-$sdk = new Aws\Sdk([
-    'region'   => 'us-east-1',
-    'version'  => 'latest'
-]);
-
-$dynamodb = $sdk->createDynamoDb();
-$marshaler = new Marshaler();
-
-$tableName = 'profile';
-?>
 <div class="w3-card w3-round w3-white w3-container">
     <h6 class="w3-opacity">Search by Username</h6>
     <form action="" value=userSearch method="post">
@@ -21,44 +5,36 @@ $tableName = 'profile';
         <button type="submit" name="searchButton" class="w3-button green-theme"><i class="fa fa-search"></i> Search</button>
     </form>
     <?php
-    if (isset($_POST["searchButton"])) {
-        if (isset($_POST['username'])) {
-            echo '<ul>';
-            $eav = $marshaler->marshalJson('
-                        {
-                        ":buddy": "' . $_POST['username'] . '"
-                        } 
-                    ');
+    if (isset($_POST['searchButton'])) {
+    echo '<ul>';
+    $scan_response = $dynamodb->scan(array(
+        'TableName' => 'profile'
+    ));
 
-            $params = [
-                'TableName' => $tableName,
-                'ProjectionExpression' => 'username',
-                'KeyConditionExpression' => 'username = :buddy',
-                'ExpressionAttributeValues' => $eav
-            ];
-
-            try {
-                $result = $dynamodb->query($params);
-                foreach ($result['Items'] as $i) {
-                    $user = $marshaler->unmarshalItem($i);
-                    if ($user['username'] != $_SESSION['username']) {
-                        echo '<li>' .  $user["username"] . '
-                    
-                                    <a class="w3-button green-theme" href="/main.php" name="addUserButton">Add Buddy</a>';
-                                    if (isset($_GET["addUserButton"])) {
-                                        addUser($_SESSION['username'], $user['username'], $dynamodb, $marshaler);
-                                        //$_SESSION['addBuddy'] = $_POST['addUser'];
-                                        //include 'addBuddy.php';
-                                    }
-                        echo '</li>';
-                    }
-                }
-            } catch (DynamoDbException $e) {
-                echo "Unable to query:\n";
-                echo $e->getMessage() . "\n";
-            }
+    foreach ($scan_response['Items'] as $i) {
+        $user = $marshaler->unmarshalItem($i);
+        $username = $user['username'];
+        if (isset($_POST['addButton'])) {
+            $_SESSION['addBuddy'] = $_POST['buddyName'];
+            $result = $dynamodb->putItem(array(
+                'TableName' => 'friends',
+                'Item' => array(
+                    'username1'      => array('S' => $_SESSION['username']),
+                    'username2'    => array('S' => $_SESSION['addBuddy']),
+                    'status'    => array('S' => "pending")
+                )
+            ));
         }
-        echo '</table>';
+        if ($_POST['username'] == $username) {
+        echo '<li>' . $username . '                  
+                          <form method="post">
+                            <input type="hidden" name="buddyName" value="' . $username . '"> 
+                            <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
+                          </form>
+                         </li>';
+        }
+        }
+        echo '</ul>';
     }
 
     ?>
@@ -93,62 +69,32 @@ $tableName = 'profile';
                         } 
                     ');
 
-            try {
-                while (true) {
-                    $params = [
-                        'TableName' => $tableName,
-                        'ProjectionExpression' => 'username, firstName, lastName, #loc, gender',
-                        'FilterExpression' => '#loc = :loc',
-                        'ExpressionAttributeNames' => ['#loc' => 'location'],
-                        'ExpressionAttributeValues' => $eav
-                    ];
-                    $result = $dynamodb->scan($params);
-                    foreach ($result['Items'] as $i) {
-                        $user = $marshaler->unmarshalItem($i);
-                        echo '<li><a href="#">' . $user['username'] . '</a></li>';
-                    }
-
-                    if (isset($result['LastEvaluatedKey'])) {
-                        $params['ExclusiveStartKey'] = $result['LastEvaluatedKey'];
-                    } else {
-                        break;
-                    }
-
-                    if (empty($result['Items'])) {
-                        echo '<td>No results match query<td>';
-                    }
+            while (true) {
+                $params = [
+                    'TableName' => $tableName,
+                    'ProjectionExpression' => 'username, firstName, lastName, #loc, gender',
+                    'FilterExpression' => '#loc = :loc',
+                    'ExpressionAttributeNames' => ['#loc' => 'location'],
+                    'ExpressionAttributeValues' => $eav
+                ];
+                $result = $dynamodb->scan($params);
+                foreach ($result['Items'] as $i) {
+                    $user = $marshaler->unmarshalItem($i);
+                    echo '<li><a href="#">' . $user['username'] . '</a></li>';
                 }
-            } catch (DynamoDbException $e) {
-                echo "Unable to query:\n";
-                echo $e->getMessage() . "\n";
+
+                if (isset($result['LastEvaluatedKey'])) {
+                    $params['ExclusiveStartKey'] = $result['LastEvaluatedKey'];
+                } else {
+                    break;
+                }
+
+                if (empty($result['Items'])) {
+                    echo '<td>No results match query<td>';
+                }
             }
         }
         echo '</ul>';
-    }
-
-    function addUser($user1, $user2, $dynamodb, $marshaler)
-    {
-        $item = $marshaler->marshalJson('
-                    {
-                        "username1":  "' . $user1 . '",
-                        "username2": "' . $user2 . '",
-                        "status": "pending"                  
-                    }
-                    ');
-
-        $params = [
-            'TableName' => 'friends',
-            'Item' => $item
-        ];
-
-        try {
-            $dynamodb->putItem($params);
-            header("Location: main.php");
-            exit();
-        } catch (DynamoDbException $e) {
-            echo "Unable to update item:\n";
-            echo $e->getMessage() . "\n";
-        }
     }
     ?>
 </div>

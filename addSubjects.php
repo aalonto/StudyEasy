@@ -1,32 +1,14 @@
 <?php
+$scan_response = $dynamodb->scan(array(
+    'TableName' => 'subjects'
+));
 
-use Aws\DynamoDb\Exception\DynamoDbException;
-
-$tableName = 'subjects';
-
-
-$eav = $marshaler->marshalJson('
-      {
-        ":username": "' . $_SESSION['username'] . '"
-      }
-  ');
-
-$params = [
-  'TableName' => $tableName,
-  'KeyConditionExpression' => 'username = :username',
-  'ExpressionAttributeValues' => $eav
-];
-
-
-try {
-  $result = $dynamodb->query($params);
-  foreach ($result['Items'] as $i) {
+foreach ($scan_response['Items'] as $i) {
     $subject = $marshaler->unmarshalItem($i);
-    echo "<p>" . $subject['subject'] . "</p>";
-  }
-} catch (DynamoDbException $e) {
-  echo "Unable to query:\n";
-  echo $e->getMessage() . "\n";
+    if ($_SESSION['username'] == $subject['username']) {
+
+        echo "<p>" . $subject['subject'] . "</p>";
+    }
 }
 ?>
 <p>
@@ -36,26 +18,13 @@ try {
     <?php
     if (isset($_POST['subject'])) {
 
-        $item = $marshaler->marshalJson('
-        {
-            "username":  "'.$_SESSION['username'].'",
-            "subject": "' . $_POST['subject'] . '"
-        }
-        ');
-
-        $params = [
-            'TableName' => $tableName,
-            'Item' => $item
-        ];
-
-        try {
-            $result = $dynamodb->putItem($params);
-            header("Location: main.php");
-            exit();
-        } catch (DynamoDbException $e) {
-            echo "Unable to update item:\n";
-            echo $e->getMessage() . "\n";
-        }
+        $result = $dynamodb->putItem(array(
+            'TableName' => 'subjects',
+            'Item' => array(
+                'username'      => array('S' => $_SESSION['username']),
+                'subject'    => array('S' => $_POST['subject'])
+            )
+        ));
     }
     ?>
 </form>

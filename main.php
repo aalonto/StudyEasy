@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, email,gender, phone',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, email,gender, phone, description',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -47,6 +47,7 @@ try {
     $_SESSION['phone'] = $user['phone'];
     $_SESSION['birthDate'] = $user['birthDate'];
     $_SESSION['location'] = $user['location'];
+    $_SESSION['description'] = $user['description'];
   }
 } catch (DynamoDbException $e) {
   echo "Unable to query:\n";
@@ -76,6 +77,31 @@ try {
   echo "Unable to query:\n";
   echo $e->getMessage() . "\n";
 }
+
+// $key = $marshaler->marshalJson('
+//     {
+//         "username": ' . $_SESSION['username'] . '
+//     }
+// ');
+
+// $eav = array(
+//   ':s' => array(
+//     'First'=> array('S'=>'one')
+//   )
+
+// );
+
+// $params = [
+//   'TableName' => 'profile',
+//   'Key' => $key,
+//   'UpdateExpression' => 
+// 'set subjects = :s',
+//   'ExpressionAttributeValues'=> $eav,
+//   'ReturnValues' => 'UPDATED_NEW'
+// ];
+
+// $result = $dynamodb->updateItem($params);
+
 
 ?>
 <title>StudyEasy</title>
@@ -110,14 +136,14 @@ try {
         <!---HERE -->
         <div class="w3-card w3-round w3-white">
           <div class="w3-container">
-            <h4 class="w3-center"><a href="/profile" id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
+            <h4 class="w3-center"><a id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
             <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar"></p>
             <hr>
             <p><i class="fa fa-user fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
             <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['location']; ?></p>
             <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['birthDate']; ?></p>
             <hr>
-            <p class="w3-center"><span name="editProfile" href="/editProfile.php" class="w3-button green-theme">Edit Profile</span></p>
+            <p><a class="w3-center" href="/editProfile.php"><input class="w3-button green-theme" type="submit" id=" edit" name="edit" value="Edit Profile"></a></p>
           </div>
         </div>
         <br>
@@ -145,21 +171,16 @@ try {
             <button onclick="myFunction('Demo4')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddy Preferences</button>
             <div id="Demo4" class="w3-hide w3-container">
               <p>Location:
-                <?php
-                if (!empty($pref['location'])) {
-                  foreach ($pref['location'] as $i) {
-                    echo  $i, " ";
-                  }
+                <?php if (!empty($pref['location'])) {
+                  echo  $pref['location'], " ";
                 } ?></p>
               <p>Gender:
                 <?php if (!empty($pref['gender'])) {
                   echo  $pref['gender'];
                 } ?></p>
               <p>Subjects:
-                <?php if (!empty($pref['subjects'])) {
-                  foreach ($pref['subjects'] as $i) {
-                    echo  $i, " ";
-                  }
+                <?php if (!empty($pref['subject'])) {
+                  echo $pref['subject'], " ";
                 } ?></p>
 
               </p>
@@ -220,53 +241,93 @@ try {
               'TableName' => 'profile'
             ));
 
+            $friends = $dynamodb->scan(array(
+              'TableName' => 'friends'
+            ));
+
+            $subjects = $dynamodb->scan(array(
+              'TableName' => 'subjects'
+            ));
+
             // foreach ($scan_response['Items'] as $music)
             // {
 
+
             $count = 0;
+            if (isset($_POST['view'])) {
+
+              $_SESSION['viewUser'] = $_POST['view1'];
+              echo "<script>
+              window.location.href = 'userProfile.php';
+              </script>";
+						}
+            if(!empty($pref)){
             foreach ($scan_response['Items'] as $i) {
               $user = $marshaler->unmarshalItem($i);
-
               if ($user['username'] != $_SESSION['username']) {
-                if(!empty($pref)){
+                foreach ($friends['Items'] as $j) {
+                  $friend = $marshaler->unmarshalItem($j);
+                  if ($friend['person1'] != $_SESSION['username'] || $friend['person2'] != $user['username']) {
 
-                foreach ($pref['location'] as $loc) {
-                  if ($user['location'] == $loc) {
-                    foreach ($pref['subjects'] as $subject) {
-                      foreach ($user['subjects'] as $userSub) {
-                        if ($userSub == $subject) {
+                    if ($friend['person2'] != $_SESSION['username'] || $friend['person1'] != $user['username']) {
 
-                          if ($user['gender'] == $pref['gender']) {
-                            $count += 1;
-                            if ($count < 4) {
+                      if ($user['location'] == $pref['location']) {
+                          foreach ($subjects['Items'] as $x) {
+                            $subject = $marshaler->unmarshalItem($x);
+                            if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject'] ) {
+                            if ($user['gender'] == $pref['gender']) {
+                              $count += 1;
+                              if ($count < 4) {
+                                $eav = $marshaler->marshalJson('
+                                    {
+                                      ":username": "' . $user['username'] . '"
+                                    }
+                                ');
+
+                                $params = [
+                                  'TableName' => 'users',
+                                  'ProjectionExpression' => 'user_created',
+                                  'KeyConditionExpression' => 'username = :username',
+                                  'ExpressionAttributeValues' => $eav
+                                ];
+
 
             ?>
-                              <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                                <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
 
-                                <h3> Recommended Buddies</h3><br>
+                                  <h3> Recommended Buddies</h3><br>
 
 
-                              </div>
+                                </div>
+                                <form action="" method="post" name="newUser">
+                                <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                                  <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                                  <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
+                                  <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
+                                  <p> <?php echo $user['description'] ?> </p>
+                                  <hr class="w3-clear">
+                                  <p>Gender: <?php echo $user['gender'] ?> </p>
 
-                              <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-                                <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-                                <!-- <span class="w3-right w3-opacity">1 min</span> -->
-                                <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
-                                <hr class="w3-clear">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                                  <button type="button"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>Request</button>
 
-                                <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fas fa-user-check"></i> Request</button>
-                              </div>
+                                  <!-- <button type="button2"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>View Profile</button>
+                                  <input type="hidden" name="view" value=<?php echo $user['username'] ?>> -->
+
+                                  <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
+															    <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
+                                </div>
+                                </form>
 
             <?php }
+                            }
                           }
                         }
                       }
-                    }}
+                    }
                   }
                 }
               }
-            }
+            }}
             ?>
 
             <!-- End Middle Column -->
