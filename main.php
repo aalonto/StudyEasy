@@ -29,7 +29,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, email,gender, phone, description',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, email,gender, phone, description, image',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -48,6 +48,8 @@ try {
     $_SESSION['birthDate'] = $user['birthDate'];
     $_SESSION['location'] = $user['location'];
     $_SESSION['description'] = $user['description'];
+    $_SESSION['image'] = $user['image'];
+
   }
 } catch (DynamoDbException $e) {
   echo "Unable to query:\n";
