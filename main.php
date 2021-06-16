@@ -49,7 +49,6 @@ try {
     $_SESSION['location'] = $user['location'];
     $_SESSION['description'] = $user['description'];
     $_SESSION['image'] = $user['image'];
-
   }
 } catch (DynamoDbException $e) {
   echo "Unable to query:\n";
@@ -141,14 +140,14 @@ try {
             <h4 class="w3-center"><a id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
             <?php
             if (!empty($_SESSION['image'])) {
-              $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/'. $_SESSION['image'].'';
+              $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '';
             } else {
               $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/blank.png';
             }
             ?>
             </p>
             <p class="w3-center"><img src=<?php echo $src; ?> class="w3-circle" style="height:106px;width:106px" alt="Avatar">
-            <hr>
+              <hr>
             <p><i class="fa fa-user fa-fw w3-margin-right w3-text-theme"></i><?php echo $_SESSION['username']; ?></p>
             <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['location']; ?></p>
             <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> <?php echo $_SESSION['birthDate']; ?></p>
@@ -199,24 +198,65 @@ try {
             <div id="Demo3" class="w3-hide w3-container">
               <div class="w3-row-padding">
                 <br>
-                <div class="w3-half">
-                  <img src="/w3images/lights.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/nature.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/mountains.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/forest.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/nature.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/snow.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
+                <?php
+              if (isset($_POST['accept'])) {
+                $key = $marshaler->marshalJson('
+                                {
+                                    "username1": "' . $_POST['accept'] . '", 
+                                    "username2": "' . $_SESSION['username'] . '"
+                                }
+                                ');
+
+                $eav = $marshaler->marshalJson('{":stat": "friends"}');
+
+                $dynamodb->updateItem([
+                  'TableName' => 'friends',
+                  'Key' => $key,
+                  'UpdateExpression' => 'set status = :stat',
+                  'ExpressionAttributeValues' => $eav,
+                  'ReturnValues' => 'UPDATED_NEW'
+                ]);
+              }
+
+              if (isset($_POST['decline'])) {
+                $key = $marshaler->marshalJson('
+                                {
+                                    "username1": "' . $_POST['decline'] . '", 
+                                    "username2": "' . $_SESSION['username'] . '"
+                                }
+                                ');
+
+                $dynamodb->deleteItem(array(
+                  'TableName' => 'friends',
+                  'Key' => $key
+                ));
+
+              }
+              ?>
+                <?php
+                $scan_response = $dynamodb->scan(array(
+                  'TableName' => 'friends'
+                ));
+
+                foreach ($scan_response['Items'] as $i) {
+                  $friends = $marshaler->unmarshalItem($i);
+                  $request = $friends['username1'];
+
+                  if ($friends['username2'] == $_SESSION['username'] && $friends['status'] == 'pending') {
+                    echo '<div class="w3-half">
+                        <p>' . $request . '</p>
+                          </div>
+                        <div class="w3-half">
+                          <div class="w3-half">
+                          <form method="post">
+                            <button class="w3-button w3-block w3-green w3-section" value="' . $request . '" name="accept"><i class="fa fa-check"></i></button></div></form>
+                          <div class="w3-half">
+                          <form method="post">
+                            <button class="w3-button w3-block w3-red w3-section" value="' . $request . '" name="decline"><i class="fa fa-remove"></i></button></div></form>
+                        </div>';
+                  }
+                }
+                ?>
               </div>
             </div>
           </div>
@@ -270,18 +310,18 @@ try {
               echo "<script>
               window.location.href = 'userProfile.php';
               </script>";
-						}
-            if(!empty($pref)){
-            foreach ($scan_response['Items'] as $i) {
-              $user = $marshaler->unmarshalItem($i);
-              if ($user['username'] != $_SESSION['username']) {
-                foreach ($friends['Items'] as $j) {
-                  $friend = $marshaler->unmarshalItem($j);
-                  if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
+            }
+            if (!empty($pref)) {
+              foreach ($scan_response['Items'] as $i) {
+                $user = $marshaler->unmarshalItem($i);
+                if ($user['username'] != $_SESSION['username']) {
+                  foreach ($friends['Items'] as $j) {
+                    $friend = $marshaler->unmarshalItem($j);
+                    if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
 
-                    if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
+                      if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
 
-                      if ($user['location'] == $pref['location']) {
+                        if ($user['location'] == $pref['location']) {
                           foreach ($subjects['Items'] as $x) {
                             $subject = $marshaler->unmarshalItem($x);
                             if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject']) {
