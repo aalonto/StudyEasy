@@ -11,8 +11,13 @@ use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
 
 $sdk = new Aws\Sdk([
+  'credentials' => [
+    'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+    'secret' => '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',
+  ],
   'region'   => 'us-east-1',
   'version'  => 'latest'
+
 ]);
 
 $dynamodb = $sdk->createDynamoDb();
@@ -78,29 +83,6 @@ try {
   echo $e->getMessage() . "\n";
 }
 
-// $key = $marshaler->marshalJson('
-//     {
-//         "username": ' . $_SESSION['username'] . '
-//     }
-// ');
-
-// $eav = array(
-//   ':s' => array(
-//     'First'=> array('S'=>'one')
-//   )
-
-// );
-
-// $params = [
-//   'TableName' => 'profile',
-//   'Key' => $key,
-//   'UpdateExpression' => 
-// 'set subjects = :s',
-//   'ExpressionAttributeValues'=> $eav,
-//   'ReturnValues' => 'UPDATED_NEW'
-// ];
-
-// $result = $dynamodb->updateItem($params);
 
 
 ?>
@@ -109,7 +91,6 @@ try {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<!-- <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css"> -->
 <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
@@ -155,11 +136,6 @@ try {
             <div id="Demo1" class="w3-hide w3-container">
               <p>
                 <?php
-                // if (!empty($user['subjects'])) {
-                //   foreach ($user['subjects'] as $i) {
-                //     echo "<p>" . $i . "</p>";
-                //   }
-                // }
                 include 'addSubjects.php'
                 ?>
               </p>
@@ -182,6 +158,8 @@ try {
                 <?php if (!empty($pref['subject'])) {
                   echo $pref['subject'], " ";
                 } ?></p>
+
+              <p><a class="w3-center" href="/editProfile.php"><input class="w3-button green-theme" type="submit" id=" edit" name="edit" value="Edit Preferences"></a></p>
 
               </p>
             </div>
@@ -258,67 +236,68 @@ try {
 
               $_SESSION['viewUser'] = $_POST['view1'];
               echo "<script>
-              window.location.href = 'userProfile.php';
-              </script>";
-						}
-            if(!empty($pref)){
-            foreach ($scan_response['Items'] as $i) {
-              $user = $marshaler->unmarshalItem($i);
-              if ($user['username'] != $_SESSION['username']) {
-                foreach ($friends['Items'] as $j) {
-                  $friend = $marshaler->unmarshalItem($j);
-                  if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
+                window.location.href = 'userProfile.php';
+                </script>";
+            }
+            if (!empty($pref)) {
+              foreach ($scan_response['Items'] as $i) {
+                $user = $marshaler->unmarshalItem($i);
+                if ($user['username'] != $_SESSION['username']) {
+                  foreach ($friends['Items'] as $j) {
+                    $friend = $marshaler->unmarshalItem($j);
+                    if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
 
-                    if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
+                      if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
 
-                      if ($user['location'] == $pref['location']) {
+                        if ($user['location'] == $pref['location']) {
                           foreach ($subjects['Items'] as $x) {
                             $subject = $marshaler->unmarshalItem($x);
-                            if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject'] ) {
-                            if ($user['gender'] == $pref['gender']) {
-                              $count += 1;
-                              if ($count < 4) {
-                                $eav = $marshaler->marshalJson('
-                                    {
-                                      ":username": "' . $user['username'] . '"
-                                    }
-                                ');
+                            if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject']) {
+                              if ($user['gender'] == $pref['gender']) {
+                                $count += 1;
+                                if ($count < 4) {
+                                  $eav = $marshaler->marshalJson('
+                                      {
+                                        ":username": "' . $user['username'] . '"
+                                      }
+                                  ');
 
-                                $params = [
-                                  'TableName' => 'users',
-                                  'ProjectionExpression' => 'user_created',
-                                  'KeyConditionExpression' => 'username = :username',
-                                  'ExpressionAttributeValues' => $eav
-                                ];
+                                  $params = [
+                                    'TableName' => 'users',
+                                    'ProjectionExpression' => 'user_created',
+                                    'KeyConditionExpression' => 'username = :username',
+                                    'ExpressionAttributeValues' => $eav
+                                  ];
 
 
             ?>
-                                <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                                  <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
 
-                                  <h3> Recommended Buddies</h3><br>
+                                    <h3> Recommended Buddies</h3><br>
 
 
-                                </div>
-                                <form action="" method="post" name="newUser">
-                                <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-                                  <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-                                  <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
-                                  <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
-                                  <p> <?php echo $user['description'] ?> </p>
-                                  <hr class="w3-clear">
-                                  <p>Gender: <?php echo $user['gender'] ?> </p>
+                                  </div>
+                                  <form action="" method="post" name="newUser">
+                                    <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                                      <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                                      <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
+                                      <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
+                                      <p> <?php echo $user['description'] ?> </p>
+                                      <hr class="w3-clear">
+                                      <p>Gender: <?php echo $user['gender'] ?> </p>
 
-                                  <button type="button"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>Request</button>
+                                      <button type="button"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>Request</button>
 
-                                  <!-- <button type="button2"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>View Profile</button>
+                                      <!-- <button type="button2"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>View Profile</button>
                                   <input type="hidden" name="view" value=<?php echo $user['username'] ?>> -->
 
-                                  <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
-															    <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
-                                </div>
-                                </form>
+                                      <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
+                                      <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
+                                    </div>
+                                  </form>
 
             <?php }
+                              }
                             }
                           }
                         }
@@ -327,43 +306,13 @@ try {
                   }
                 }
               }
-            }}
+            }
             ?>
 
             <!-- End Middle Column -->
           </div>
         </div>
       </div>
-
-      <!-- Right Column
-      <div class="w3-col m2">
-        <div class="w3-card w3-round w3-white w3-center">
-          <div class="w3-container">
-            <p>Upcoming Events:</p>
-            <img src="/w3images/forest.jpg" alt="Forest" style="width:100%;">
-            <p><strong>Holiday</strong></p>
-            <p>Friday 15:00</p>
-            <p><button class="w3-button w3-block w3-theme-l4">Info</button></p>
-          </div>
-        </div>
-        <br> -->
-
-      <!-- <div class="w3-card w3-round w3-white w3-center">
-          <div class="w3-container">
-            <p>Friend Request</p>
-            <img src="/w3images/avatar6.png" alt="Avatar" style="width:50%"><br>
-            <span>Jane Doe</span>
-            <div class="w3-row w3-opacity">
-              <div class="w3-half">
-                <button class="w3-button w3-block w3-green w3-section" title="Accept"><i class="fa fa-check"></i></button>
-              </div>
-              <div class="w3-half">
-                <button class="w3-button w3-block w3-red w3-section" title="Decline"><i class="fa fa-remove"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br> -->
 
       <!-- End Grid -->
     </div>

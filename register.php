@@ -15,6 +15,10 @@
    use Aws\DynamoDb\Marshaler;
 
    $sdk = new Aws\Sdk([
+      'credentials' => [
+         'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+         'secret' => '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',
+     ],
       'region'   => 'us-east-1',
       'version'  => 'latest'
    ]);
@@ -25,7 +29,34 @@
    $tableName = 'users';
    $userExist = false;
 
-
+   function callAPI($method, $url, $data){
+      $curl = curl_init();
+      switch ($method){
+         case "POST":
+            curl_setopt($curl, CURLOPT_POST, 1);
+            if ($data)
+               curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            break;
+         case "PUT":
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+            if ($data)
+               curl_setopt($curl, CURLOPT_POSTFIELDS, $data);			 					
+            break;
+         default:
+            if ($data)
+               $url = sprintf("%s?%s", $url, http_build_query($data));
+      }
+      curl_setopt($curl, CURLOPT_URL, $url);
+      curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+         'Content-Type: application/json',
+      ));
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+      $result = curl_exec($curl);
+      if(!$result){die("Connection Failure");}
+      curl_close($curl);
+      return $result;
+    }
 
    if (isset($_POST['user_name']) && isset($_POST['email']) && isset($_POST['user_password'])) {
       if (empty($_POST['user_name']) || empty($_POST['email'])  || empty($_POST['user_password'])) {
@@ -49,15 +80,13 @@
 
          if (!($userExist)) {
             date_default_timezone_set('Australia/Melbourne');
-            $result = $dynamodb->putItem(array(
-               'TableName' => $tableName,
-               'Item' => array(
-                  'username'      => array('S' => $_POST['user_name']),
-                  'email'      => array('S' => $_POST['email']),
-                  'password'      => array('S' => $_POST['user_password']),
-                  'user_created'      => array('S' => date('d/m/Y h:i:s a', time()))
-               )
-            ));
+            $data_array =  array(
+               "username"        => $_POST['user_name'],
+               "password"        => $_POST['user_password'],
+               "email"        => $_POST['email'],
+               "user_created" => date('d/m/Y h:i:s a', time())
+         );
+         $make_call = callAPI('POST', 'https://cer052quse.execute-api.us-east-1.amazonaws.com/dev/user/', json_encode($data_array));
 
             $result = $dynamodb->putItem(array(
                'TableName' => 'profile',

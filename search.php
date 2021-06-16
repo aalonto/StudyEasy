@@ -15,6 +15,7 @@
         $user = $marshaler->unmarshalItem($i);
         $username = $user['username'];
      
+        if($_POST['username']!= $_SESSION['username']){
     if ($_POST['username'] == $username) {
         echo '<li>' . $username . '                  
                           <form method="post">
@@ -37,7 +38,7 @@
             )
         ));
 
-    }
+    }}
 
     ?>
 </div>

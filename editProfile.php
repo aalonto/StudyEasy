@@ -47,6 +47,10 @@ $s3 = new S3Client([
 ]);
 
 $sdk = new Aws\Sdk([
+	'credentials' => [
+        'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+        'secret' => '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',
+    ],
 	'region'   => 'us-east-1',
 	'version'  => 'latest'
 ]);
@@ -55,6 +59,28 @@ $dynamodb = $sdk->createDynamoDb();
 $marshaler = new Marshaler();
 
 
+$eav1 = $marshaler->marshalJson('
+      {
+        ":username": "' . $_SESSION['username'] . '"
+      }
+  ');
+
+$params1 = [
+  'TableName' => 'preferences',
+  'KeyConditionExpression' => 'username = :username',
+  'ExpressionAttributeValues' => $eav1
+];
+
+
+try {
+  $result1 = $dynamodb->query($params1);
+  foreach ($result1['Items'] as $i) {
+    $pref = $marshaler->unmarshalItem($i);
+  }
+} catch (DynamoDbException $e) {
+  echo "Unable to query:\n";
+  echo $e->getMessage() . "\n";
+}
 // dynamodb table update (NEW ATTRIBUTE)
 
 
@@ -127,11 +153,34 @@ if (isset($_POST['update'])) {
 		}
 	}
 }
+if (isset($_POST['update2'])) {
 
+	$tableName = 'profile';
+	$eav = $marshaler->marshalJson('
+							{
+
+								":gender": "' . $_POST['genderPref'] . '" ,
+								":loc": "' . $_POST['locPref'] . '", 
+								":subject": "' . $_POST['subPref'] . '" 
+							}
+						');
+
+	$params = [
+		'TableName' => 'preferences',
+		'Key' => array(
+			'username'      => array('S' => '' . $_SESSION['username'] . '')
+		),
+		'UpdateExpression' =>
+		'set  gender = :gender,subject = :subject, #loc=:loc',
+		'ExpressionAttributeNames' => ['#loc' => 'location'],
+		'ExpressionAttributeValues' => $eav,
+		'ReturnValues' => 'UPDATED_NEW'
+	];
+	$result = $dynamodb->updateItem($params);
+
+}
 
 ?>
-
-
 <html>
 
 <body class="w3-theme-l5">
@@ -240,37 +289,34 @@ if (isset($_POST['update'])) {
 								<input type="submit" id="update" class="w3-button w3-block green-theme w3-left-align  " name="update" value="Update">
 							</div>
 						</form>
-
-						<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
-					<form action="" method="post" name="pref">
+						<form action="" method="post" name="editPref">
 						<div class="row gutters">
 							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-								<h6 class="mb-2 text-success">Preferences</h6>
+								<h6 class="mt-3 mb-2 text-success">Preferences</h6>
 							</div>
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="fName">Location</label>
-									<input type="text" class="form-control" name="locPref" id="locPref" value="loc">
+									<input type="text" class="form-control" name="locPref" id="locPref" value=<?php echo $pref['location'] ?>>
 								</div>
 							</div>
 
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="fName">Subject</label>
-									<input type="text" class="form-control" name="subPref" id="subPref" value="subPref">
+									<input type="text" class="form-control" name="subPref" id="subPref" value=<?php echo $pref['subject'] ?>>
 								</div>
-							</div>
 							</div>
 
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="fName">Gender</label>
-									<input type="text" class="form-control" name="genderPref" id="genderPref" value="genderPref">
+									<input type="text" class="form-control" name="genderPref" id="genderPref" value=<?php echo $pref['gender'] ?>>
 								</div>
 							</div>
 							</div>
 							<div class="text-right">
-							<input type="submit" id="update" class="w3-button w3-block green-theme w3-left-align  " name="update" value="Update">
+							<input type="submit" id="update2" class="w3-button w3-block green-theme w3-left-align  " name="update2" value="Update">
 						</div>
 						</form>
 
