@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $params = [
     'TableName' => $tableName,
-    'ProjectionExpression' => 'username, password',
+    'ProjectionExpression' => 'username, password, image',
     'KeyConditionExpression' => 'username = :username',
     'ExpressionAttributeValues'=> $eav
 ];
@@ -87,7 +87,7 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
             $userExists = true;
             if($result == null){
               $userExists = false;
-              echo "not right";
+              echo "User does not exist";
             }
 
             else{
@@ -97,8 +97,7 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
                     exit();
             }
             else{
-              echo '
-            Password Incorrect. Try Again';
+              echo 'Password Incorrect. Try Again';
             }}
 }
 }

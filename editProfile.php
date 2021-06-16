@@ -38,10 +38,9 @@ $bucketName = 's3778713-a2-s3';
 // Connect to AWS
 $s3 = new S3Client([
 	'credentials' => [
-        'key' => 'AKIA3QI3KNZZCV7JMUVJ',
+		'key' => 'AKIA3QI3KNZZCV7JMUVJ',
 		'secret' => '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'
-
-    ],
+	],
 	'version' => 'latest',
 	'region'  => 'us-east-1'
 ]);
@@ -198,9 +197,38 @@ if (isset($_POST['update2'])) {
 										echo '<img src="https://studyeasy.s3.us-east-1.amazonaws.com/blank.png">';
 									} ?>
 								</div>
-								<form action="imgUpload.php" method="post" enctype="multipart/form-data">
-									<input type="file" name="img" style="display:none;" accept="image/*">
-									<input type="button" name="upload" value="Upload Profile Picture" onClick="img.click();">
+								<?php
+								if (isset($_FILES['img'])) {
+									$split = explode(".", $_FILES['img']['name']);
+									$image = $_SESSION['username'] .".". $split[1];
+									try {
+										$s3->putObject([
+											'Bucket' => 'studyeasy',
+											'Key' =>  $image,
+											'SourceFile' => $_FILES['img']['tmp_name'],
+											'ACL'    => 'public-read'
+										]);
+										// header("Location: editProfile.php");
+										// exit();
+									} catch (S3Exception $e) {
+										echo "There was an error uploading the file.\n";
+									}
+
+									$eav = $marshaler->marshalJson('{":img": "'.$image.'"}');
+
+									$dynamodb->updateItem([
+										'TableName' => 'profile',
+										'Key' => array('username' => array('S' => $_SESSION['username'])),
+										'UpdateExpression' => 'set image = :img',
+										'ExpressionAttributeValues'=> $eav,
+										'ReturnValues' => 'UPDATED_NEW'
+									]);
+									$_SESSION['image'] = $image;
+								}
+								?>
+								<form action="<?= $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
+									<input type="file" name="img" accept="image/*">
+									<input type="submit" name="upload" value="Upload Profile Picture">
 								</form>
 
 								<h5 class="user-name"><?php echo $_SESSION['username'] ?></h5>

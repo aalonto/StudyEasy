@@ -99,7 +99,8 @@
                   'gender' => array('S' => $_POST['gender']),
                   'birthDate'      => array('S' => $_POST['birthday']),
                   'location'      => array('S' => $_POST['location']),
-                  'description'      => array('S' => ' ')
+                  'description'      => array('S' => ''),
+                  'image'      => array('S' => '')
                )
             ));
 
