@@ -19,7 +19,7 @@
             if ($_POST['username'] == $username) {
                 echo '<li>';
                 if (!empty($user['image'])) {
-                    $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '';
+                    $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
                 } else {
                     $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/blank.png';
                 }
@@ -96,7 +96,7 @@
     </form>
     <?php
     if (isset($_POST['advancedSearch'])) {
-        echo '<ul>';
+        echo '<ul id="buddySearch">';
         $locSearched = !empty($_POST["locationSearch"]);
         $subjectSearched = !empty($_POST["subjectSearch"]);
         $genderSearched = $_POST['genderSearch'] != 'any';
@@ -148,11 +148,12 @@
         }
         foreach ($completeSearch as $a) {
             if ($a !== $_SESSION['username']) {
-                echo '<li>' . $a . '                  
-                      <form method="post">
-                        <input type="hidden" name="buddyName" value="' . $a . '"> 
-                        <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
-                      </form>
+                echo '<li>
+                        <img src="https://studyeasy.s3.us-east-1.amazonaws.com/blank.png" class="w3-circle" style="height:106px;width:106px" alt="Avatar">' . $a . '                  
+                        <form method="post">
+                            <input type="hidden" name="buddyName" value="' . $a . '"> 
+                            <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
+                        </form>
                      </li>';
             }
         }

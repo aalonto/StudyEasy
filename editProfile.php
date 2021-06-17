@@ -14,6 +14,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
@@ -133,7 +134,7 @@ if (isset($_POST['update'])) {
 
 <html>
 
-<body class="w3-theme-l5">
+<body class="w3-theme-l5" style="background-color: #d2f8d2">
 	<div class="container">
 		<div class="row gutters">
 			<div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
@@ -151,7 +152,7 @@ if (isset($_POST['update'])) {
 								<?php
 								if (isset($_FILES['img'])) {
 									$split = explode(".", $_FILES['img']['name']);
-									$image = $_SESSION['username'] .".". $split[1];
+									$image = $_SESSION['username'] . "." . $split[1];
 									try {
 										$s3->putObject([
 											'Bucket' => 'studyeasy',
@@ -165,13 +166,13 @@ if (isset($_POST['update'])) {
 										echo "There was an error uploading the file.\n";
 									}
 
-									$eav = $marshaler->marshalJson('{":img": "'.$image.'"}');
+									$eav = $marshaler->marshalJson('{":img": "' . $image . '"}');
 
 									$dynamodb->updateItem([
 										'TableName' => 'profile',
 										'Key' => array('username' => array('S' => $_SESSION['username'])),
 										'UpdateExpression' => 'set image = :img',
-										'ExpressionAttributeValues'=> $eav,
+										'ExpressionAttributeValues' => $eav,
 										'ReturnValues' => 'UPDATED_NEW'
 									]);
 									$_SESSION['image'] = $image;
@@ -270,34 +271,38 @@ if (isset($_POST['update'])) {
 						</form>
 
 						<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
-					<form action="" method="post" name="pref">
-						<div class="row gutters">
-							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-								<h6 class="mb-2 text-success">Preferences</h6>
-							</div>
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="fName">Location</label>
-									<input type="text" class="form-control" name="locPref" id="locPref" value="loc">
-								</div>
-							</div>
+							<form action="" method="post" name="pref">
+								<div class="row gutters">
+									<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+										<h6 class="mb-2 text-success">Preferences</h6>
+									</div>
+									<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+										<div class="form-group">
+											<label for="fName">Location</label>
+											<input type="text" class="form-control" name="locPref" id="locPref" value=>
+										</div>
+									</div>
 
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="fName">Subject</label>
-									<input type="text" class="form-control" name="subPref" id="subPref" value="subPref">
+									<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+										<div class="form-group">
+											<label for="fName">Subject</label>
+											<input type="text" class="form-control" name="subPref" id="subPref" value="subPref">
+										</div>
+									</div>
 								</div>
-							</div>
-							</div>
 
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="fName">Gender</label>
-									<input type="text" class="form-control" name="genderPref" id="genderPref" value="genderPref">
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<p>Gender</p>
+										<select class="form-control" name="genderPref">
+											<option value="male">Male</option>
+											<option value="female">Female</option>
+											<option value="any" selected>Any</option>
+										</select>
+									</div>
 								</div>
-							</div>
-							</div>
-							<div class="text-right">
+						</div>
+						<div class="text-right">
 							<input type="submit" id="update" class="w3-button w3-block green-theme w3-left-align  " name="update" value="Update">
 						</div>
 						</form>
