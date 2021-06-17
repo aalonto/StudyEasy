@@ -139,6 +139,7 @@
                     if ($item == $subject['username']) {
                         if (!in_array($item, $completeSearch, true)) {
                             array_push($completeSearch, $item);
+                            
                         }
                     }
                 }
@@ -146,6 +147,7 @@
                 $completeSearch = $searchResults;
             }
         }
+        $notFriends = false;
         foreach ($completeSearch as $a) {
             if ($a !== $_SESSION['username']) {
                 $friends = $dynamodb->scan(array(
@@ -155,17 +157,26 @@
                   foreach ($friends['Items'] as $j) {
                     $friend = $marshaler->unmarshalItem($j);
                     if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $a) {
-
-                    
                         if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $a) {
+                            $notFriends = true;}}
+                    
+                        }
+            }
+
+            if($notFriends){
+
                 echo '<li>' . $a . '                  
                       <form method="post">
                         <input type="hidden" name="buddyName" value="' . $a . '"> 
                         <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
                       </form>
-                     </li>';}}
-                    
-                        }
+                     </li>';
+            }
+
+            else{
+                echo '<li>' . $a . '                  
+               </li>';
+
             }
         }
     }

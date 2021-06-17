@@ -24,7 +24,6 @@ $marshaler = new Marshaler();
 
 $tableName = 'profile';
 
-$_SESSION['viewUser'] = "jeffw";
 $eav = $marshaler->marshalJson('
       {
         ":username": "' . $_SESSION['viewUser'] . '"
@@ -33,7 +32,7 @@ $eav = $marshaler->marshalJson('
 
 $params = [
   'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , subjects, email,gender, phone,description',
+  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc , email,gender, phone,description,image',
   'KeyConditionExpression' => 'username = :username',
   'ExpressionAttributeNames' => ['#loc' => 'location'],
   'ExpressionAttributeValues' => $eav
@@ -129,7 +128,15 @@ try {
 		<div class="account-settings">
 			<div class="user-profile">
 				<div class="user-avatar">
-					<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
+				<?php
+           if (!empty($user['image'])) {
+			$src=  'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
+		  } else {
+			$src= 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png';
+		  }
+		   ?>
+            
+					<img src= <?php echo $src ?> alt="Avatar">
 				</div>
 				<h5 class="user-name"><?php echo $_SESSION['viewUser']?></h5>
 				<h6 class="user-email"><?php echo $user['email']?></h6>
@@ -219,12 +226,13 @@ $friends = $dynamodb->scan(array(
 	'TableName' => 'friends'
   ));
 
-
+  $notFriends = true;
 foreach ($friends['Items'] as $j) {
-	$friend = $marshaler->unmarshalItem($j);
-	if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "friends"
-	|| ($friend['username2'] == $_SESSION['username'] && $friend['username1'] == $user['username'] &&  $friend['status'] == "friends")) {
 
+	$friend = $marshaler->unmarshalItem($j);
+	if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $_SESSION['viewUser']) &&  $friend['status'] == "friends"
+	|| ($friend['username2'] == $_SESSION['username'] && $friend['username1'] == $_SESSION['viewUser'] &&  $friend['status'] == "friends")) {
+		$notFriends = false;
 
 ?>
 		
@@ -248,7 +256,8 @@ foreach ($friends['Items'] as $j) {
 
 			<?php } 
 
-if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "request") {
+elseif (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $_SESSION['viewUser']) &&  $friend['status'] == "request") {
+	$notFriends = false;
 	?>
 <div class="row gutters">
 			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -258,19 +267,20 @@ if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $u
 			</div>
 		</div>
 		<?php
-}
+}}
+
 	
-			else{?>
+if($notFriends){?>
 		
-		<div class="row gutters">
-			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-				<div class="text-right">
-					<button type="button" id="submit" name="submit" class="btn btn-secondary">Request</button>
-				</div>
+	<div class="row gutters">
+		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+			<div class="text-right">
+				<button type="button" id="submit" name="submit" class="btn btn-secondary">Request</button>
 			</div>
 		</div>
+	</div>
 
-		<?php }}?>
+	<?php }?>
 	</div>
 </div>
 </div>

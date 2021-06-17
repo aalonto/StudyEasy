@@ -177,40 +177,39 @@ try {
               <div class="w3-row-padding">
                 <br>
                 <?php
-              if (isset($_POST['accept'])) {
-                $key = $marshaler->marshalJson('
+                if (isset($_POST['accept'])) {
+                  $key = $marshaler->marshalJson('
                                 {
                                     "username1": "' . $_POST['accept'] . '", 
                                     "username2": "' . $_SESSION['username'] . '"
                                 }
                                 ');
 
-                $eav = $marshaler->marshalJson('{":stat": "friends"}');
+                  $eav = $marshaler->marshalJson('{":stat": "friends"}');
 
-                $dynamodb->updateItem([
-                  'TableName' => 'friends',
-                  'Key' => $key,
-                  'UpdateExpression' => 'set status = :stat',
-                  'ExpressionAttributeValues' => $eav,
-                  'ReturnValues' => 'UPDATED_NEW'
-                ]);
-              }
+                  $dynamodb->updateItem([
+                    'TableName' => 'friends',
+                    'Key' => $key,
+                    'UpdateExpression' => 'set status = :stat',
+                    'ExpressionAttributeValues' => $eav,
+                    'ReturnValues' => 'UPDATED_NEW'
+                  ]);
+                }
 
-              if (isset($_POST['decline'])) {
-                $key = $marshaler->marshalJson('
+                if (isset($_POST['decline'])) {
+                  $key = $marshaler->marshalJson('
                                 {
                                     "username1": "' . $_POST['decline'] . '", 
                                     "username2": "' . $_SESSION['username'] . '"
                                 }
                                 ');
 
-                $dynamodb->deleteItem(array(
-                  'TableName' => 'friends',
-                  'Key' => $key
-                ));
-
-              }
-              ?>
+                  $dynamodb->deleteItem(array(
+                    'TableName' => 'friends',
+                    'Key' => $key
+                  ));
+                }
+                ?>
                 <?php
                 $scan_response = $dynamodb->scan(array(
                   'TableName' => 'friends'
@@ -264,149 +263,121 @@ try {
       <div class="w3-col m9">
         <div class="w3-row-padding">
           <div class="w3-col m12">
-            <?php include 'search.php';?>
-           </div></div>
-           <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+            <?php include 'search.php'; ?>
+          </div>
+        </div>
+        <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
 
-<h3> Recommended Buddies</h3><br>
+          <h3> Recommended Buddies</h3><br>
 
 
-</div>
-           <?php
-            $scan_response = $dynamodb->scan(array(
-              'TableName' => 'profile'
-            ));
+        <!-- </div> -->
+        
+        <?php
+        $scan_response = $dynamodb->scan(array(
+          'TableName' => 'profile'
+        ));
 
-            $friends = $dynamodb->scan(array(
-              'TableName' => 'friends'
-            ));
+        $friends = $dynamodb->scan(array(
+          'TableName' => 'friends'
+        ));
 
-            $subjects = $dynamodb->scan(array(
-              'TableName' => 'subjects'
-            ));
+        $subjects = $dynamodb->scan(array(
+          'TableName' => 'subjects'
+        ));
+        
+        $count = 0;
+        if (isset($_POST['view'])) {
 
-            // foreach ($scan_response['Items'] as $music)
-            // {
-
-            //   if ($_POST['addButton'] == "Add Buddy") {
-            //     $dynamodb->putItem(array(
-            //      'TableName' => 'friends',
-            //      'Item' => array(
-            //        'username1'      => array('S' => $_SESSION['username']),
-            //        'username2'    => array('S' => $_POST['buddyName']),
-            //        'status'    => array('S' => "pending")
-            //      )
-            //    ));
-            //  } elseif ($_POST['addButton'] == "Cancel Request") {
-         
-            //    $dynamodb->deleteItem(array(
-            //      'TableName' => 'friends',
-            //      'Key' => $key
-            //    ));
-            //  } elseif ($_POST['addButton'] == "Accept Request") {
-            //    $eav = $marshaler->marshalJson('{":stat": "friends"}');
-         
-            //    $dynamodb->updateItem([
-            //      'TableName' => 'friends',
-            //      'Key' => $key,
-            //      'UpdateExpression' => 'set status = :stat',
-            //      'ExpressionAttributeValues' => $eav,
-            //      'ReturnValues' => 'UPDATED_NEW'
-            //    ]);
-            //  }
-            $count = 0;
-            if (isset($_POST['view'])) {
-
-              $_SESSION['viewUser'] = $_POST['view1'];
-              echo "<script>
+          $_SESSION['viewUser'] = $_POST['view1'];
+          echo "<script>
               window.location.href = 'userProfile.php';
               </script>";
-            }
+        }
 
-            if (!empty($pref)) {
-              foreach ($scan_response['Items'] as $i) {
-                $user = $marshaler->unmarshalItem($i);
-                if ($user['username'] != $_SESSION['username']) {
-                  foreach ($friends['Items'] as $j) {
-                    $friend = $marshaler->unmarshalItem($j);
-                    if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
+        if (!empty($pref)) {
+          foreach ($scan_response['Items'] as $i) {
+            $user = $marshaler->unmarshalItem($i);
+            if ($user['username'] != $_SESSION['username']) {
+              $notFriends = false;
+              foreach ($friends['Items'] as $j) {
+                $friend = $marshaler->unmarshalItem($j);
+                if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
 
-                      if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
-
-                        if ($user['location'] == $pref['location']) {
-                          foreach ($subjects['Items'] as $x) {
-                            $subject = $marshaler->unmarshalItem($x);
-                            if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject']) {
-                              if ($user['gender'] == $pref['gender']) {
-                                $count += 1;
-                                if ($count < 4) {
-                                  $eav = $marshaler->marshalJson('
+                  if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
+                    $notFriends = true;
+                  }}}
+              if($notFriends ){
+                    if ($user['location'] == $pref['location']) {
+                      foreach ($subjects['Items'] as $x) {
+                        $subject = $marshaler->unmarshalItem($x);
+                        if ($subject['username'] == $user['username'] && $subject['subject'] == $pref['subject']) {
+                          if ($user['gender'] == $pref['gender']) {
+                            $count += 1;
+                            if ($count < 4) {
+                              $eav = $marshaler->marshalJson('
                                     {
                                       ":username": "' . $user['username'] . '"
                                     }
                                 ');
 
-                                  $params = [
-                                    'TableName' => 'users',
-                                    'ProjectionExpression' => 'user_created',
-                                    'KeyConditionExpression' => 'username = :username',
-                                    'ExpressionAttributeValues' => $eav
-                                  ];
+                              $params = [
+                                'TableName' => 'users',
+                                'ProjectionExpression' => 'user_created',
+                                'KeyConditionExpression' => 'username = :username',
+                                'ExpressionAttributeValues' => $eav
+                              ];
 
 
-            ?>
+        ?>
 
-                               
-                                  <form action="" method="post" name="newUser">
-                                    <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-                                      <img src=   <?php
-                                  if (!empty($user['image'])) {
-                                      echo  'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
-                                    } else {
-                                      echo 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png'; 
-                                    }?>
-                                    alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-                                      <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
-                                      <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
-                                      <p> <?php echo $user['description'] ?> </p>
-                                      <hr class="w3-clear">
-                                      <p>Gender: <?php echo $user['gender'] ?> </p>
 
-                                      <form method="post">
-                                      <input type="hidden" name="buddyName" value=<?php echo $user['username'] ?>> 
-                                      <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
-                                    </form>
+                              <form action="" method="post" name="newUser">
+                                <!-- <div class="w3-container w3-card w3-white w3-round w3-margin"><br> -->
+                                  <img src=<?php
+                                            if (!empty($user['image'])) {
+                                              echo  'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
+                                            } else {
+                                              echo 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png';
+                                            } ?> alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                                  <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
+                                  <p> <?php echo $user['description'] ?> </p>
+                                  <hr class="w3-clear">
+                                  <p>Gender: <?php echo $user['gender'] ?> </p>
 
-                                      <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
-                                      <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
-                                    </div>
+                                  <form method="post">
+                                    <input type="hidden" name="buddyName" value=<?php echo $user['username'] ?>>
+                                    <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
                                   </form>
 
-            <?php }
-            }}
-                              }
-                            }
+                                  <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
+                                  <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
+                             
+                              </form>
+
+        <?php }
                           }
                         }
                       }
+                    
                     }
-                  }
                 }
-            ?>
-
-            <!-- End Middle Column -->
-          </div>
-        </div>
+              
+            }
+          }
+        }
+    
+        ?>
+            </div>
       </div>
-
-      <!-- End Grid -->
     </div>
+  </div>
 
-    <!-- End Page Container -->
+  </div>
+
   </div>
   <br>
 
-  <!-- Footer -->
   <footer class="w3-container w3-theme-d3 w3-padding-16">
     <h5>Footer</h5>
   </footer>
