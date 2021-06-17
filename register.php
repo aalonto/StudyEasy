@@ -28,6 +28,7 @@
 
    $tableName = 'users';
    $userExist = false;
+   $option = "Australia";
 
    function callAPI($method, $url, $data){
       $curl = curl_init();

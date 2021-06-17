@@ -314,15 +314,14 @@ try {
           foreach ($scan_response['Items'] as $i) {
             $user = $marshaler->unmarshalItem($i);
             if ($user['username'] != $_SESSION['username']) {
-              $notFriends = false;
+              $notFriends = true;     
               foreach ($friends['Items'] as $j) {
-                $friend = $marshaler->unmarshalItem($j);
-                if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $user['username']) {
 
-                  if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $user['username']) {
-                    $notFriends = true;
-                  }}}
-              if($notFriends ){
+                $friend = $marshaler->unmarshalItem($j);
+                if ($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username'] || $friend['username2'] == $_SESSION['username'] && $friend['username1'] == $user['username']) {
+                    $notFriends = false;
+                  }}
+              if($notFriends){
                     if ($user['location'] == $pref['location']) {
                       foreach ($subjects['Items'] as $x) {
                         $subject = $marshaler->unmarshalItem($x);
@@ -355,7 +354,7 @@ try {
                                             } else {
                                               echo 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png';
                                             } ?> alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
-                                  <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
+          
                                   <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
                                   <p> <?php echo $user['description'] ?> </p>
                                   <hr class="w3-clear">

@@ -160,7 +160,7 @@ if (isset($_POST['update2'])) {
 							{
 
 								":gender": "' . $_POST['genderPref'] . '" ,
-								":loc": "' . $_POST['locPref'] . '", 
+								":loc": "' . $_POST['locationPref'] . '", 
 								":subject": "' . $_POST['subPref'] . '" 
 							}
 						');
@@ -316,7 +316,7 @@ if (isset($_POST['update2'])) {
 								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 									<div class="form-group">
 										<label for="desc">Description</label>
-										<input type="text" class="form-control" name="desc" id="desc" value=<?php echo $_SESSION['description'] ?>>
+										<input type="text" class="form-control" maxlength="40" name="desc" id="desc" value=<?php echo $_SESSION['description'] ?>>
 									</div>
 								</div>
 							</div>
@@ -333,12 +333,18 @@ if (isset($_POST['update2'])) {
 								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 									<div class="form-group">
 										<label for="locPref">Location</label>
-										<select class="form-control" name="locationPref" id="locationPref" required>
+										
+										<select class="form-control" name="locationPref" id="locationPref" >
 											<?php
+											 if(!empty($pref['location'])){ 
 											$option = $pref['location'];
+										
+										}
+										else{
+											$option = "Australia";
+										}
 											include 'countries.php';
 											?>
-
 										</select>
 									</div>
 								</div>
@@ -346,7 +352,7 @@ if (isset($_POST['update2'])) {
 								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 									<div class="form-group">
 										<label for="subPref">Subject</label>
-										<input type="text" class="form-control" name="subPref" id="subPref" value=<?php echo $pref['subject'] ?>>
+										<input type="text" class="form-control" name="subPref" id="subPref" value=<?php  if(!empty($pref['subject'])){ echo $pref['subject']; }?>>
 									</div>
 								</div>
 
@@ -354,9 +360,16 @@ if (isset($_POST['update2'])) {
 									<div class="form-group">
 										<label for="genderPref">Gender</label>
 										<select name="genderPref" class="form-control">
-											<option value="male" <?php if ($pref['gender'] == "male") echo 'selected'; ?>>Male</option>
+										<?php if(!empty($pref['subject'])){ ?>
+											<option value="male" <?php if ($pref['gender'] == "male") echo 'selected'; ?> >Male</option>
 											<option value="female" <?php if ($pref['gender'] == "female") echo 'selected'; ?>>Female</option>
 											<option value="any" <?php if ($pref['gender'] == "any") echo 'selected="selected"'; ?>>Any</option>
+											<?php }
+											else{?>
+												<option value="male"  selected ?>Male</option>
+											<option value="female">Female</option>
+											<option value="any" >Any</option>
+											<?php }?>
 										</select>
 									</div>
 								</div>
