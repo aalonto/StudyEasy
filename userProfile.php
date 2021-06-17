@@ -12,11 +12,11 @@ use Aws\DynamoDb\Marshaler;
 
 $sdk = new Aws\Sdk([
 	'credentials' => [
-        'key'    => 'AKIA4WTDCA2IYDFWFGRE',
-        'secret' => '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',
-    ],
-  'region'   => 'us-east-1',
-  'version'  => 'latest'
+		'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+		'secret' => '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',
+	],
+	'region'   => 'us-east-1',
+	'version'  => 'latest'
 ]);
 
 $dynamodb = $sdk->createDynamoDb();
@@ -32,22 +32,22 @@ $eav = $marshaler->marshalJson('
   ');
 
 $params = [
-  'TableName' => $tableName,
-  'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , subjects, email,gender, phone,description',
-  'KeyConditionExpression' => 'username = :username',
-  'ExpressionAttributeNames' => ['#loc' => 'location'],
-  'ExpressionAttributeValues' => $eav
+	'TableName' => $tableName,
+	'ProjectionExpression' => 'firstName, lastName, birthDate, #loc, friends , subjects, email,gender, phone,description',
+	'KeyConditionExpression' => 'username = :username',
+	'ExpressionAttributeNames' => ['#loc' => 'location'],
+	'ExpressionAttributeValues' => $eav
 ];
 
 
 try {
-  $result = $dynamodb->query($params);
-  foreach ($result['Items'] as $i) {
-    $user = $marshaler->unmarshalItem($i);
-  }
+	$result = $dynamodb->query($params);
+	foreach ($result['Items'] as $i) {
+		$user = $marshaler->unmarshalItem($i);
+	}
 } catch (DynamoDbException $e) {
-  echo "Unable to query:\n";
-  echo $e->getMessage() . "\n";
+	echo "Unable to query:\n";
+	echo $e->getMessage() . "\n";
 }
 
 
@@ -58,20 +58,20 @@ $eav1 = $marshaler->marshalJson('
   ');
 
 $params1 = [
-  'TableName' => 'preferences',
-  'KeyConditionExpression' => 'username = :username',
-  'ExpressionAttributeValues' => $eav1
+	'TableName' => 'preferences',
+	'KeyConditionExpression' => 'username = :username',
+	'ExpressionAttributeValues' => $eav1
 ];
 
 
 try {
-  $result1 = $dynamodb->query($params1);
-  foreach ($result1['Items'] as $i) {
-    $pref = $marshaler->unmarshalItem($i);
-  }
+	$result1 = $dynamodb->query($params1);
+	foreach ($result1['Items'] as $i) {
+		$pref = $marshaler->unmarshalItem($i);
+	}
 } catch (DynamoDbException $e) {
-  echo "Unable to query:\n";
-  echo $e->getMessage() . "\n";
+	echo "Unable to query:\n";
+	echo $e->getMessage() . "\n";
 }
 
 // $key = $marshaler->marshalJson('
@@ -114,79 +114,83 @@ try {
 	<meta charset="utf-8">
 	<!--  This file has been downloaded from bootdey.com @bootdey on twitter -->
 	<!--  All snippets are MIT license http://bootdey.com/license -->
-	<title><?php echo $_SESSION['viewUser']?>Profile</title>
+	<title><?php echo $_SESSION['viewUser'] ?>Profile</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-<div class="container">
-<div class="row gutters">
-<div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
-<div class="card h-100">
-	<div class="card-body">
-		<div class="account-settings">
-			<div class="user-profile">
-				<div class="user-avatar">
-					<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
-				</div>
-				<h5 class="user-name"><?php echo $_SESSION['viewUser']?></h5>
-				<h6 class="user-email"><?php echo $user['email']?></h6>
-			</div>
-			<div class="about">
-				<h5>About</h5>
-				<p><?php echo $user['description']?></p>
-			</div>
-		</div>
-	</div>
-</div>
-</div>
-<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
-<div class="card h-100">
-	<div class="card-body">
+
+<body style="background-color: #d2f8d2">
+	<div class="container">
 		<div class="row gutters">
-			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-				<h6 class="mb-2 text-success">Personal Details</h6>
-			</div>
-			<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="form-group">
-					<label for="fullName">First Name</label>
-					<p class="form-control"><?php echo $user['firstName'] ?></p>
+			<div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
+				<div class="card h-100">
+					<div class="card-body">
+						<div class="account-settings">
+							<div class="user-profile">
+								<div class="user-avatar">
+									<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
+								</div>
+								<h5 class="user-name"><?php echo $_SESSION['viewUser'] ?></h5>
+								<h6 class="user-email"><?php echo $user['email'] ?></h6>
+							</div>
+							<div class="about">
+								<h5>About</h5>
+								<p><?php echo $user['description'] ?></p>
+								<br>
+								<br>
+								<a href="/main.php" class="w3-button w3-block btn" name="back">Go Back</a>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="form-group">
-				<label for="fullName">Last Name</label>
-					<p class="form-control"><?php echo $user['lastName'] ?></p>
-				</div>
-			</div>
-			<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="form-group">
-				<label for="fullName">Gender</label>
-					<p class="form-control"><?php echo $user['gender'] ?></p>
-				</div>
-			</div>
-			<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="form-group">
-				<label for="fullName">Location</label>
-					<p class="form-control"><?php echo $user['location'] ?></p>
-				</div>
-			</div>
+			<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+				<div class="card h-100">
+					<div class="card-body">
+						<div class="row gutters">
+							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+								<h6 class="mb-2 text-success">Personal Details</h6>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="fullName">First Name</label>
+									<p class="form-control"><?php echo $user['firstName'] ?></p>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="fullName">Last Name</label>
+									<p class="form-control"><?php echo $user['lastName'] ?></p>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="fullName">Gender</label>
+									<p class="form-control"><?php echo $user['gender'] ?></p>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="fullName">Location</label>
+									<p class="form-control"><?php echo $user['location'] ?></p>
+								</div>
+							</div>
 
 
-			<!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+							<!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 				<div class="form-group">
 				<label for="fullName">Birthday</label>
 					<p class="form-control"><?php echo $user['birthDate'] ?></p>
 				</div>
 			</div> -->
 
-			<!-- <div class="row gutters"> -->
+							<!-- <div class="row gutters"> -->
 							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 								<h6 class="mt-3 mb-2 text-success">Subjects</h6>
-							<!-- </div> -->
-							<!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"> -->
+								<!-- </div> -->
+								<!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"> -->
 								<div class="form-group">
 									<?php
 									$scan_response = $dynamodb->scan(array(
@@ -200,79 +204,80 @@ try {
 									?>
 
 											<!-- <div class="row gutters"> -->
-												<!-- <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"> -->
-							
-														<p><i class="fa-fw w3-margin-right w3-text-theme"></i><?php echo $subject['subject'] ?>
-														
-													</p>
-													<!-- </div> -->
-													<!-- </div> -->
-													<?php }}?>
-			
+											<!-- <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"> -->
 
-		
-		</div>
+											<p><i class="fa-fw w3-margin-right w3-text-theme"></i><?php echo $subject['subject'] ?>
 
-		<?php
-
-$friends = $dynamodb->scan(array(
-	'TableName' => 'friends'
-  ));
+											</p>
+											<!-- </div> -->
+											<!-- </div> -->
+									<?php }
+									} ?>
 
 
-foreach ($friends['Items'] as $j) {
-	$friend = $marshaler->unmarshalItem($j);
-	if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "friends"
-	|| ($friend['username2'] == $_SESSION['username'] && $friend['username1'] == $user['username'] &&  $friend['status'] == "friends")) {
+
+								</div>
+
+								<?php
+
+								$friends = $dynamodb->scan(array(
+									'TableName' => 'friends'
+								));
 
 
-?>
-		
-		<div class="row gutters">
-		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-				<h6 class="mb-2 text-success">Contact Details</h6>
-			</div>
-			<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="form-group">
-				<label for="fullName">Phone</label>
-					<p class="form-control"><?php echo $user['phone'] ?></p>
+								foreach ($friends['Items'] as $j) {
+									$friend = $marshaler->unmarshalItem($j);
+									if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "friends"
+										|| ($friend['username2'] == $_SESSION['username'] && $friend['username1'] == $user['username'] &&  $friend['status'] == "friends")
+									) {
+
+
+								?>
+
+										<div class="row gutters">
+											<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+												<h6 class="mb-2 text-success">Contact Details</h6>
+											</div>
+											<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+												<div class="form-group">
+													<label for="fullName">Phone</label>
+													<p class="form-control"><?php echo $user['phone'] ?></p>
+												</div>
+											</div>
+											<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+												<div class="form-group">
+													<label for="fullName">Email</label>
+													<p class="form-control"><?php echo $user['email'] ?></p>
+												</div>
+											</div>
+										</div>
+
+									<?php }
+
+									if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "request") {
+									?>
+										<div class="row gutters">
+											<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+												<div class="text-right">
+													<button type="button" id="submit" name="submit" class="btn btn-secondary">Unrequest</button>
+												</div>
+											</div>
+										</div>
+									<?php
+									} else { ?>
+
+										<div class="row gutters">
+											<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+												<div class="text-right">
+													<button type="button" id="submit" name="submit" class="btn btn-secondary">Request</button>
+												</div>
+											</div>
+										</div>
+
+								<?php }
+								} ?>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="form-group">
-				<label for="fullName">Email</label>
-					<p class="form-control"><?php echo $user['email'] ?></p>
-				</div>
-			</div>
-			</div>
-
-			<?php } 
-
-if (($friend['username1'] == $_SESSION['username'] && $friend['username2'] == $user['username']) &&  $friend['status'] == "request") {
-	?>
-<div class="row gutters">
-			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-				<div class="text-right">
-					<button type="button" id="submit" name="submit" class="btn btn-secondary">Unrequest</button>
-				</div>
-			</div>
-		</div>
-		<?php
-}
-	
-			else{?>
-		
-		<div class="row gutters">
-			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-				<div class="text-right">
-					<button type="button" id="submit" name="submit" class="btn btn-secondary">Request</button>
-				</div>
-			</div>
-		</div>
-
-		<?php }}?>
-	</div>
-</div>
-</div>
-</div>
-</div>
