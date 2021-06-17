@@ -12,6 +12,10 @@ use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
 
 $sdk = new Aws\Sdk([
+  'credentials' => [
+    'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+    'secret' => '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',
+],
     'region'   => 'us-east-1',
     'version'  => 'latest'
 ]);
@@ -20,6 +24,40 @@ $dynamodb = $sdk->createDynamoDb();
 $marshaler = new Marshaler();
 
 $tableName = 'users';
+
+
+function callAPI($method, $url, $data){
+  $curl = curl_init();
+  switch ($method){
+     case "POST":
+        curl_setopt($curl, CURLOPT_POST, 1);
+        if ($data)
+           curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        break;
+     case "PUT":
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        if ($data)
+           curl_setopt($curl, CURLOPT_POSTFIELDS, $data);			 					
+        break;
+     default:
+        if ($data)
+           $url = sprintf("%s?%s", $url, http_build_query($data));
+  }
+  // OPTIONS:
+  curl_setopt($curl, CURLOPT_URL, $url);
+  curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+    //  'APIKEY: 111111111111111111111',
+     'Content-Type: application/json',
+  ));
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+  // EXECUTE:
+  $result = curl_exec($curl);
+  if(!$result){die("Connection Failure");}
+  curl_close($curl);
+  return $result;
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $username = $_POST['username'];
@@ -42,27 +80,25 @@ $params = [
 if(isset($_POST['username']) && isset($_POST['password'])) {
   $username = $_POST['username'];
   $password = $_POST['password'];
-    try {
-        $result = $dynamodb->query($params);
-        foreach ($result['Items'] as $i) {
-            $user = $marshaler->unmarshalItem($i);
+
+        $get_data = callAPI('GET', 'https://cer052quse.execute-api.us-east-1.amazonaws.com/dev/user/'.$username, false);
+        $result = json_decode($get_data, true);
+
             $userExists = true;
-            if($user['password'] == $password) {
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['image'] =  $user['image'];
-                header('Location: main.php');
-                exit();
-            } else {
-                echo 'Password Incorrect. Try Again';
-            }  
-        }
-        if(!$userExists) {
-          echo "Please enter a valid username.";
-        }        
-    } catch (DynamoDbException $e) {
-    echo "Unable to query:\n";
-    echo $e->getMessage() . "\n";
-    }
+            if($result == null){
+              $userExists = false;
+              echo "User does not exist";
+            }
+
+            else{
+              if($result['Item']['password'] == $password) {
+                $_SESSION['username'] = $result['Item']['username'] ;
+                    header('Location: main.php');
+                    exit();
+            }
+            else{
+              echo 'Password Incorrect. Try Again';
+            }}
 }
 }
 ?>

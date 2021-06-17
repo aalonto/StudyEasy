@@ -11,6 +11,10 @@ use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
 
 $sdk = new Aws\Sdk([
+	'credentials' => [
+        'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+        'secret' => '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',
+    ],
   'region'   => 'us-east-1',
   'version'  => 'latest'
 ]);
@@ -20,7 +24,7 @@ $marshaler = new Marshaler();
 
 $tableName = 'profile';
 
-
+$_SESSION['viewUser'] = "jeffw";
 $eav = $marshaler->marshalJson('
       {
         ":username": "' . $_SESSION['viewUser'] . '"
