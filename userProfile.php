@@ -120,6 +120,7 @@ try {
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+<body class="w3-theme-l5" style="background-color: #d2f8d2">
 <div class="container">
 <div class="row gutters">
 <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
@@ -144,6 +145,9 @@ try {
 			<div class="about">
 				<h5>About</h5>
 				<p><?php echo $user['description']?></p>
+				<br>
+								<br>
+									<a href="/main.php" class="w3-button w3-block btn" name="back">Go Back</a>
 			</div>
 		</div>
 	</div>

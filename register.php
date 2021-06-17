@@ -146,7 +146,7 @@
                <input name="phone" id="input" type="tel" placeholder="Phone Number" class="form-control" required>
             </div>
             <div class="form-group">
-            <label for="phone">Location</label>
+            <label for="location">Location</label>
                <select id="input" name="location" class="form-control" required>
                   <?php
                   include 'countries.php';

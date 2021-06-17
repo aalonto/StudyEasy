@@ -19,9 +19,9 @@
             if ($_POST['username'] == $username) {
                 echo '<li>';
                 if (!empty($user['image'])) {
-                    $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '';
+                    $src = 'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
                 } else {
-                    $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/blank.png';
+                    $src = 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png';
                 }
                 $array = checkFriends($username, $dynamodb, $marshaler);
                 echo '<img src=' . $src . ' class="w3-circle" style="height:106px;width:106px" alt="Avatar">   ' . $username . '                  
@@ -37,7 +37,7 @@
 
     //addBuddy($array, $dynamodb, $marshaler);
     if (isset($_POST['addButton'])) {
-    $array = checkFriends($_POST['buddyName'], $dynamodb, $marshaler);
+        $array = checkFriends($_POST['buddyName'], $dynamodb, $marshaler);
         $key = $marshaler->marshalJson('
         {
             "username1": "' . $array[0] . '", 
@@ -45,7 +45,7 @@
         }
         ');
         if ($_POST['addButton'] == "Add Buddy") {
-               $dynamodb->putItem(array(
+            $dynamodb->putItem(array(
                 'TableName' => 'friends',
                 'Item' => array(
                     'username1'      => array('S' => $array[0]),
@@ -96,7 +96,7 @@
     </form>
     <?php
     if (isset($_POST['advancedSearch'])) {
-        echo '<ul>';
+        echo '<ul id="buddySearch">';
         $locSearched = !empty($_POST["locationSearch"]);
         $subjectSearched = !empty($_POST["subjectSearch"]);
         $genderSearched = $_POST['genderSearch'] != 'any';
@@ -139,7 +139,6 @@
                     if ($item == $subject['username']) {
                         if (!in_array($item, $completeSearch, true)) {
                             array_push($completeSearch, $item);
-                            
                         }
                     }
                 }
@@ -150,35 +149,33 @@
         $notFriends = false;
         foreach ($completeSearch as $a) {
             if ($a !== $_SESSION['username']) {
-                $friends = $dynamodb->scan(array(
-                    'TableName' => 'friends'
-                  ));
+                $scan_response = $dynamodb->scan(array(
+                    'TableName' => 'profile'
+                ));
 
-                  foreach ($friends['Items'] as $j) {
-                    $friend = $marshaler->unmarshalItem($j);
-                    if ($friend['username1'] != $_SESSION['username'] || $friend['username2'] != $a) {
-                        if ($friend['username2'] != $_SESSION['username'] || $friend['username1'] != $a) {
-                            $notFriends = true;}}
-                    
+                foreach ($scan_response['Items'] as $i) {
+                    $user = $marshaler->unmarshalItem($i);
+                    $username = $user['username'];
+
+                    if ($a == $username) {
+                        echo '<li>';
+                        if (!empty($user['image'])) {
+                            $src = 'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
+                        } else {
+                            $src = 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png';
                         }
-            }
-
-            if($notFriends){
-
-                echo '<li>' . $a . '                  
-                      <form method="post">
-                        <input type="hidden" name="buddyName" value="' . $a . '"> 
-                        <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
-                      </form>
-                     </li>';
-            }
-
-            else{
-                echo '<li>' . $a . '                  
-               </li>';
-
+                        $array = checkFriends($username, $dynamodb, $marshaler);
+                        echo '<img src=' . $src . ' class="w3-circle" style="height:106px;width:106px" alt="Avatar">   ' . $username . '                  
+                          <form method="post">
+                            <input type="hidden" name="buddyName" value="' . $username . '"> 
+                            <input type="submit" id="addButton" class="w3-button w3-center green-theme" name="addButton" value="' . $array[2] . '">
+                          </form>
+                         </li>';
+                    }
+                }
             }
         }
+        echo '</ul>';
     }
 
     function checkFriends($buddy, $dynamodb, $marshaler)
@@ -211,14 +208,10 @@
             }
         }
 
-        if(empty($array)) {
+        if (empty($array)) {
             array_push($return, $_SESSION['username'], $buddy, 'Add Buddy');
         }
         return $return;
-    }
-
-    function addBuddy($arr, $dynamodb, $marshaler)
-    {
     }
     ?>
 </div>

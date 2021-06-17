@@ -1,81 +1,81 @@
-<option value="Afganistan">Afghanistan</option>
-<option value="Albania">Albania</option>
-<option value="Algeria">Algeria</option>
-<option value="American Samoa">American Samoa</option>
-<option value="Andorra">Andorra</option>
-<option value="Angola">Angola</option>
-<option value="Anguilla">Anguilla</option>
-<option value="Antigua & Barbuda">Antigua & Barbuda</option>
-<option value="Argentina">Argentina</option>
-<option value="Armenia">Armenia</option>
-<option value="Aruba">Aruba</option>
-<option value="Australia">Australia</option>
-<option value="Austria">Austria</option>
-<option value="Azerbaijan">Azerbaijan</option>
-<option value="Bahamas">Bahamas</option>
-<option value="Bahrain">Bahrain</option>
-<option value="Bangladesh">Bangladesh</option>
-<option value="Barbados">Barbados</option>
-<option value="Belarus">Belarus</option>
-<option value="Belgium">Belgium</option>
-<option value="Belize">Belize</option>
-<option value="Benin">Benin</option>
-<option value="Bermuda">Bermuda</option>
-<option value="Bhutan">Bhutan</option>
-<option value="Bolivia">Bolivia</option>
-<option value="Bonaire">Bonaire</option>
-<option value="Bosnia & Herzegovina">Bosnia & Herzegovina</option>
-<option value="Botswana">Botswana</option>
-<option value="Brazil">Brazil</option>
-<option value="British Indian Ocean Ter">British Indian Ocean Ter</option>
-<option value="Brunei">Brunei</option>
-<option value="Bulgaria">Bulgaria</option>
-<option value="Burkina Faso">Burkina Faso</option>
-<option value="Burundi">Burundi</option>
-<option value="Cambodia">Cambodia</option>
-<option value="Cameroon">Cameroon</option>
-<option value="Canada">Canada</option>
-<option value="Canary Islands">Canary Islands</option>
-<option value="Cape Verde">Cape Verde</option>
-<option value="Cayman Islands">Cayman Islands</option>
-<option value="Central African Republic">Central African Republic</option>
-<option value="Chad">Chad</option>
-<option value="Channel Islands">Channel Islands</option>
-<option value="Chile">Chile</option>
-<option value="China">China</option>
-<option value="Christmas Island">Christmas Island</option>
-<option value="Cocos Island">Cocos Island</option>
-<option value="Colombia">Colombia</option>
-<option value="Comoros">Comoros</option>
-<option value="Congo">Congo</option>
-<option value="Cook Islands">Cook Islands</option>
-<option value="Costa Rica">Costa Rica</option>
-<option value="Cote DIvoire">Cote DIvoire</option>
-<option value="Croatia">Croatia</option>
-<option value="Cuba">Cuba</option>
-<option value="Curaco">Curacao</option>
-<option value="Cyprus">Cyprus</option>
-<option value="Czech Republic">Czech Republic</option>
-<option value="Denmark">Denmark</option>
-<option value="Djibouti">Djibouti</option>
-<option value="Dominica">Dominica</option>
-<option value="Dominican Republic">Dominican Republic</option>
-<option value="East Timor">East Timor</option>
-<option value="Ecuador">Ecuador</option>
-<option value="Egypt">Egypt</option>
-<option value="El Salvador">El Salvador</option>
-<option value="Equatorial Guinea">Equatorial Guinea</option>
-<option value="Eritrea">Eritrea</option>
-<option value="Estonia">Estonia</option>
-<option value="Ethiopia">Ethiopia</option>
-<option value="Falkland Islands">Falkland Islands</option>
-<option value="Faroe Islands">Faroe Islands</option>
-<option value="Fiji">Fiji</option>
-<option value="Finland">Finland</option>
-<option value="France">France</option>
-<option value="French Guiana">French Guiana</option>
-<option value="French Polynesia">French Polynesia</option>
-<option value="French Southern Ter">French Southern Ter</option>
+<option value="Afghanistan"<?php if($option=="Afghanistan") echo 'selected="selected"'; ?>>Afghanistan</option>
+<option value="Albania"<?php if($option=="Albania") echo 'selected="selected"'; ?>>Albania</option>
+<option value="Algeria"<?php if($option=="Algeria") echo 'selected="selected"'; ?>>Algeria</option>
+<option value="American Samoa" <?php if($option=="American Samoa") echo 'selected="selected"'; ?>>American Samoa</option>
+<option value="Andorra"<?php if($option=="Andorra") echo 'selected="selected"'; ?>>Andorra</option>
+<option value="Angola"<?php if($option=="Angola") echo 'selected="selected"'; ?>>Angola</option>
+<option value="Angola"<?php if($option=="Angola") echo 'selected="selected"'; ?>>Anguilla</option>
+<option value="Antigua & Barbuda"<?php if($option=="Antigua & Barbuda") echo 'selected="selected"'; ?>>Antigua & Barbuda</option>
+<option value="Argentina"<?php if($option=="Argentina") echo 'selected="selected"'; ?>>Argentina</option>
+<option value="Armenia"<?php if($option=="Armenia") echo 'selected="selected"'; ?>>Armenia</option>
+<option value="Aruba"<?php if($option=="Aruba") echo 'selected="selected"'; ?>>Aruba</option>
+<option value="Australia"<?php if($option=="Australia") echo 'selected="selected"'; ?>>Australia</option>
+<option value="Austria"<?php if($option=="Austria") echo 'selected="selected"'; ?>>Austria</option>
+<option value="Azerbaijan"<?php if($option=="Azerbaijan") echo 'selected="selected"'; ?>>Azerbaijan</option>
+<option value="Bahamas"<?php if($option=="Bahamas") echo 'selected="selected"'; ?>>Bahamas</option>
+<option value="Bahrain"<?php if($option=="Bahrain") echo 'selected="selected"'; ?>>Bahrain</option>
+<option value="Bangladesh"<?php if($option=="Bangladesh") echo 'selected="selected"'; ?>>Bangladesh</option>
+<option value="Barbados"<?php if($option=="Barbados") echo 'selected="selected"'; ?>>Barbados</option>
+<option value="Belarus"<?php if($option=="Belarus") echo 'selected="selected"'; ?>>Belarus</option>
+<option value="Belgium"<?php if($option=="Belgium") echo 'selected="selected"'; ?>>Belgium</option>
+<option value="Belize"<?php if($option=="Belize") echo 'selected="selected"'; ?>>Belize</option>
+<option value="Benin"<?php if($option=="Benin") echo 'selected="selected"'; ?>>Benin</option>
+<option value="Bermuda"<?php if($option=="Bermuda") echo 'selected="selected"'; ?>>Bermuda</option>
+<option value="Bhutan"<?php if($option=="Bhutan") echo 'selected="selected"'; ?>>Bhutan</option>
+<option value="Bolivia"<?php if($option=="Bolivia") echo 'selected="selected"'; ?>>Bolivia</option>
+<option value="Bonaire"<?php if($option=="Bonaire") echo 'selected="selected"'; ?>>Bonaire</option>
+<option value="Bosnia & Herzegovina"<?php if($option=="Bosnia & Herzegovina") echo 'selected="selected"'; ?>>Bosnia & Herzegovina</option>
+<option value="Botswana"<?php if($option=="Botswana") echo 'selected="selected"'; ?>>Botswana</option>
+<option value="Brazil"<?php if($option=="Brazil") echo 'selected="selected"'; ?>>Brazil</option>
+<option value="British Indian Ocean Ter"<?php if($option=="British Indian Ocean Ter") echo 'selected="selected"'; ?>>British Indian Ocean Ter</option>
+<option value="Brunei"<?php if($option=="Brunei") echo 'selected="selected"'; ?>>Brunei</option>
+<option value="Bulgaria"<?php if($option=="Bulgaria") echo 'selected="selected"'; ?>>Bulgaria</option>
+<option value="Burkina Faso"<?php if($option=="Burkina Faso") echo 'selected="selected"'; ?>>Burkina Faso</option>
+<option value="Burundi"<?php if($option=="Burundi") echo 'selected="selected"'; ?>>Burundi</option>
+<option value="Cambodia"<?php if($option=="Cambodia") echo 'selected="selected"'; ?>>Cambodia</option>
+<option value="Cameroon"<?php if($option=="Cameroon") echo 'selected="selected"'; ?>>Cameroon</option>
+<option value="Canada"<?php if($option=="Canada") echo 'selected="selected"'; ?>>Canada</option>
+<option value="Canary Islands"<?php if($option=="Canary Islands") echo 'selected="selected"'; ?>>Canary Islands</option>
+<option value="Cape Verde"<?php if($option=="Cape Verde") echo 'selected="selected"'; ?>>Cape Verde</option>
+<option value="Cayman Islands"<?php if($option=="Cayman Islands") echo 'selected="selected"'; ?>>Cayman Islands</option>
+<option value="Central African Republic"<?php if($option=="Central African Republic") echo 'selected="selected"'; ?>>Central African Republic</option>
+<option value="Chad"<?php if($option=="Chad") echo 'selected="selected"'; ?>>Chad</option>
+<option value="Channel Islands"<?php if($option=="Channel Islands") echo 'selected="selected"'; ?>>Channel Islands</option>
+<option value="Chile"<?php if($option=="Chile") echo 'selected="selected"'; ?>>Chile</option>
+<option value="China"<?php if($option=="China") echo 'selected="selected"'; ?>>China</option>
+<option value="Christmas Island"<?php if($option=="Christmas Island") echo 'selected="selected"'; ?>>Christmas Island</option>
+<option value="Cocos Island"<?php if($option=="Cocos Island") echo 'selected="selected"'; ?>>Cocos Island</option>
+<option value="Colombia"<?php if($option=="Colombia") echo 'selected="selected"'; ?>>Colombia</option>
+<option value="Comoros"<?php if($option=="Comoros") echo 'selected="selected"'; ?>>Comoros</option>
+<option value="Congo"<?php if($option=="Congo") echo 'selected="selected"'; ?>>Congo</option>
+<option value="Cook Islands"<?php if($option=="Cook Islands") echo 'selected="selected"'; ?>>Cook Islands</option>
+<option value="Costa Rica"<?php if($option=="Costa Rica") echo 'selected="selected"'; ?>>Costa Rica</option>
+<option value="Cote DIvoire"<?php if($option=="Cote DIvoire") echo 'selected="selected"'; ?>>Cote DIvoire</option>
+<option value="Croatia"<?php if($option=="Croatia") echo 'selected="selected"'; ?>>Croatia</option>
+<option value="Cuba"<?php if($option=="Cuba") echo 'selected="selected"'; ?>>Cuba</option>
+<option value="Curaco"<?php if($option=="Curaco") echo 'selected="selected"'; ?>>Curacao</option>
+<option value="Cyprus"<?php if($option=="Cyprus") echo 'selected="selected"'; ?>>Cyprus</option>
+<option value="Czech Republic"<?php if($option=="Czech Republic") echo 'selected="selected"'; ?>>Czech Republic</option>
+<option value="Denmark"<?php if($option=="Denmark") echo 'selected="selected"'; ?>>Denmark</option>
+<option value="Djibouti"<?php if($option=="Djibouti") echo 'selected="selected"'; ?>>Djibouti</option>
+<option value="Dominica"<?php if($option=="Dominica") echo 'selected="selected"'; ?>>Dominica</option>
+<option value="Dominican Republic"<?php if($option=="Dominican Republic") echo 'selected="selected"'; ?>>Dominican Republic</option>
+<option value="East Timor"<?php if($option=="East Timor") echo 'selected="selected"'; ?>>East Timor</option>
+<option value="Ecuador"<?php if($option=="Ecuador") echo 'selected="selected"'; ?>>Ecuador</option>
+<option value="Egypt"<?php if($option=="Egypt") echo 'selected="selected"'; ?>>Egypt</option>
+<option value="El Salvador"<?php if($option=="El Salvador") echo 'selected="selected"'; ?>>El Salvador</option>
+<option value="Equatorial Guinea"<?php if($option=="Equatorial Guinea") echo 'selected="selected"'; ?>>Equatorial Guinea</option>
+<option value="Eritrea"<?php if($option=="Eritrea") echo 'selected="selected"'; ?>>Eritrea</option>
+<option value="Estonia"<?php if($option=="Estonia") echo 'selected="selected"'; ?>>Estonia</option>
+<option value="Ethiopia"<?php if($option=="Ethiopia") echo 'selected="selected"'; ?>>Ethiopia</option>
+<option value="Falkland Islands"<?php if($option=="Falkland Islands") echo 'selected="selected"'; ?>>Falkland Islands</option>
+<option value="Faroe Islands"<?php if($option=="Faroe Islands") echo 'selected="selected"'; ?>>Faroe Islands</option>
+<option value="Fiji"<?php if($option=="Fiji") echo 'selected="selected"'; ?>>Fiji</option>
+<option value="Finland"<?php if($option=="Finland") echo 'selected="selected"'; ?>>Finland</option>
+<option value="France"<?php if($option=="France") echo 'selected="selected"'; ?>>France</option>
+<option value="French Guiana"<?php if($option=="French Guiana") echo 'selected="selected"'; ?>>French Guiana</option>
+<option value="French Polynesia"<?php if($option=="French Polynesia") echo 'selected="selected"'; ?>>French Polynesia</option>
+<option value="French Southern Ter"<?php if($option=="French Southern Ter") echo 'selected="selected"'; ?>>French Southern Ter</option>
 <option value="Gabon">Gabon</option>
 <option value="Gambia">Gambia</option>
 <option value="Georgia">Georgia</option>

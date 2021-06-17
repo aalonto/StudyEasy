@@ -151,7 +151,22 @@ try {
             </div>
             <button onclick="myFunction('Demo2')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddies</button>
             <div id="Demo2" class="w3-hide w3-container">
-              <p>Some other text.. </p>
+            <br>
+              <?php
+              $scan_response = $dynamodb->scan(array(
+                'TableName' => 'friends'
+              ));
+
+              foreach ($scan_response['Items'] as $i) {
+                $friends = $marshaler->unmarshalItem($i);
+                if ($friends['username1'] == $_SESSION['username'] && $friends['status'] == 'friends') {
+                  echo '<p>' . $friends['username2'] . '</p>';
+                } elseif ($friends['username2'] == $_SESSION['username'] && $friends['status'] == 'friends') {
+                  echo '<p>' . $friends['username1'] . '</p>';
+                }
+              }
+
+              ?>
             </div>
             <button onclick="myFunction('Demo4')" class="w3-button w3-block green-theme w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> My Buddy Preferences</button>
             <div id="Demo4" class="w3-hide w3-container">
@@ -168,7 +183,7 @@ try {
                   echo $pref['subject'], " ";
                 } ?></p>
 
-              <p><a class="w3-center" href="/editProfile.php"><input class="w3-button green-theme" type="submit" id=" edit" name="edit" value="Edit Preferences"></a></p>
+<p><a class="w3-center" href="/editProfile.php"><input class="w3-button green-theme" type="submit" id=" edit" name="edit" value="Edit Preferences"></a></p>
 
               </p>
             </div>
@@ -271,7 +286,7 @@ try {
           <h3> Recommended Buddies</h3><br>
 
 
-        <!-- </div> -->
+        </div>
         
         <?php
         $scan_response = $dynamodb->scan(array(
@@ -333,13 +348,14 @@ try {
 
 
                               <form action="" method="post" name="newUser">
-                                <!-- <div class="w3-container w3-card w3-white w3-round w3-margin"><br> -->
+                                <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
                                   <img src=<?php
                                             if (!empty($user['image'])) {
                                               echo  'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
                                             } else {
                                               echo 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png';
                                             } ?> alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                                  <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
                                   <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
                                   <p> <?php echo $user['description'] ?> </p>
                                   <hr class="w3-clear">
@@ -352,7 +368,7 @@ try {
 
                                   <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
                                   <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
-                             
+                                </div>
                               </form>
 
         <?php }
@@ -366,9 +382,7 @@ try {
             }
           }
         }
-    
         ?>
-            </div>
       </div>
     </div>
   </div>
@@ -378,13 +392,6 @@ try {
   </div>
   <br>
 
-  <footer class="w3-container w3-theme-d3 w3-padding-16">
-    <h5>Footer</h5>
-  </footer>
-
-  <footer class="w3-container w3-theme-d5">
-    <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
-  </footer>
 
   <script>
     // Accordion

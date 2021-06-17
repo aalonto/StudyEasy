@@ -14,6 +14,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
@@ -39,7 +40,7 @@ $bucketName = 's3778713-a2-s3';
 $s3 = new S3Client([
 	'credentials' => [
 		'key'    => 'AKIA4WTDCA2IYDFWFGRE',
-        'secret' => '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',
+		'secret' => 'JWOtvhlj1do1wPBDbVIZzdiFlO5kKYZUJG01a8GH',
 	],
 	'version' => 'latest',
 	'region'  => 'us-east-1'
@@ -47,9 +48,9 @@ $s3 = new S3Client([
 
 $sdk = new Aws\Sdk([
 	'credentials' => [
-        'key'    => 'AKIA4WTDCA2IYDFWFGRE',
-        'secret' => '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',
-    ],
+		'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+		'secret' => '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',
+	],
 	'region'   => 'us-east-1',
 	'version'  => 'latest'
 ]);
@@ -65,20 +66,20 @@ $eav1 = $marshaler->marshalJson('
   ');
 
 $params1 = [
-  'TableName' => 'preferences',
-  'KeyConditionExpression' => 'username = :username',
-  'ExpressionAttributeValues' => $eav1
+	'TableName' => 'preferences',
+	'KeyConditionExpression' => 'username = :username',
+	'ExpressionAttributeValues' => $eav1
 ];
 
 
 try {
-  $result1 = $dynamodb->query($params1);
-  foreach ($result1['Items'] as $i) {
-    $pref = $marshaler->unmarshalItem($i);
-  }
+	$result1 = $dynamodb->query($params1);
+	foreach ($result1['Items'] as $i) {
+		$pref = $marshaler->unmarshalItem($i);
+	}
 } catch (DynamoDbException $e) {
-  echo "Unable to query:\n";
-  echo $e->getMessage() . "\n";
+	echo "Unable to query:\n";
+	echo $e->getMessage() . "\n";
 }
 // dynamodb table update (NEW ATTRIBUTE)
 
@@ -176,13 +177,12 @@ if (isset($_POST['update2'])) {
 		'ReturnValues' => 'UPDATED_NEW'
 	];
 	$result = $dynamodb->updateItem($params);
-
 }
 
 ?>
 <html>
 
-<body class="w3-theme-l5">
+<body class="w3-theme-l5" style="background-color: #d2f8d2">
 	<div class="container">
 		<div class="row gutters">
 			<div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
@@ -200,7 +200,7 @@ if (isset($_POST['update2'])) {
 								<?php
 								if (isset($_FILES['img'])) {
 									$split = explode(".", $_FILES['img']['name']);
-									$image = $_SESSION['username'] .".". $split[1];
+									$image = $_SESSION['username'] . "." . $split[1];
 									try {
 										$s3->putObject([
 											'Bucket' => 'studyeasya3',
@@ -214,13 +214,13 @@ if (isset($_POST['update2'])) {
 										echo "There was an error uploading the file.\n";
 									}
 
-									$eav = $marshaler->marshalJson('{":img": "'.$image.'"}');
+									$eav = $marshaler->marshalJson('{":img": "' . $image . '"}');
 
 									$dynamodb->updateItem([
 										'TableName' => 'profile',
 										'Key' => array('username' => array('S' => $_SESSION['username'])),
 										'UpdateExpression' => 'set image = :img',
-										'ExpressionAttributeValues'=> $eav,
+										'ExpressionAttributeValues' => $eav,
 										'ReturnValues' => 'UPDATED_NEW'
 									]);
 									$_SESSION['image'] = $image;
@@ -238,6 +238,9 @@ if (isset($_POST['update2'])) {
 								<h5>About</h5>
 								<?php if (!empty($_SESSION['description'])) ?>
 								<p><?php echo $_SESSION['description'] ?></p>
+								<br>
+								<br>
+									<a href="/main.php" class="w3-button w3-block btn" name="back">Go Back</a>
 							</div>
 						</div>
 					</div>
@@ -287,16 +290,21 @@ if (isset($_POST['update2'])) {
 								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 									<div class="form-group">
 										<label for="gender">Gender</label>
-										<input type="text" class="form-control" name="gender" id="gender" value=<?php echo $_SESSION['gender'] ?> required>
+										<select name="gender" class="form-control">
+											<option value="male" <?php if ($_SESSION['gender'] == "male") echo 'selected'; ?>>Male</option>
+											<option value="female" <?php if ($_SESSION['gender'] == "female") echo 'selected'; ?>>Female</option>
+											<option value="other" <?php if ($_SESSION['gender'] == "other") echo 'selected="selected"'; ?>>Other</option>
+										</select>
 									</div>
 								</div>
 
 								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 									<div class="form-group">
 										<label for="location">Location</label>
-										<select class="form-control" name="location" id="location" value=<?php echo $_SESSION['location'] ?> required>
 
+										<select class="form-control" name="location" id="location" required>
 											<?php
+											$option = $_SESSION['location'];
 											include 'countries.php';
 											?>
 
@@ -318,34 +326,44 @@ if (isset($_POST['update2'])) {
 							</div>
 						</form>
 						<form action="" method="post" name="editPref">
-						<div class="row gutters">
-							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-								<h6 class="mt-3 mb-2 text-success">Preferences</h6>
-							</div>
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="fName">Location</label>
-									<input type="text" class="form-control" name="locPref" id="locPref" value=<?php echo $pref['location'] ?>>
+							<div class="row gutters">
+								<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+									<h6 class="mt-3 mb-2 text-success">Preferences</h6>
 								</div>
-							</div>
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="locPref">Location</label>
+										<select class="form-control" name="locationPref" id="locationPref" required>
+											<?php
+											$option = $pref['location'];
+											include 'countries.php';
+											?>
 
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="fName">Subject</label>
-									<input type="text" class="form-control" name="subPref" id="subPref" value=<?php echo $pref['subject'] ?>>
+										</select>
+									</div>
 								</div>
-							</div>
 
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-								<div class="form-group">
-									<label for="fName">Gender</label>
-									<input type="text" class="form-control" name="genderPref" id="genderPref" value=<?php echo $pref['gender'] ?>>
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="subPref">Subject</label>
+										<input type="text" class="form-control" name="subPref" id="subPref" value=<?php echo $pref['subject'] ?>>
+									</div>
 								</div>
-							</div>
+
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+									<div class="form-group">
+										<label for="genderPref">Gender</label>
+										<select name="genderPref" class="form-control">
+											<option value="male" <?php if ($pref['gender'] == "male") echo 'selected'; ?>>Male</option>
+											<option value="female" <?php if ($pref['gender'] == "female") echo 'selected'; ?>>Female</option>
+											<option value="any" <?php if ($pref['gender'] == "any") echo 'selected="selected"'; ?>>Any</option>
+										</select>
+									</div>
+								</div>
 							</div>
 							<div class="text-right">
-							<input type="submit" id="update2" class="w3-button w3-block green-theme w3-left-align  " name="update2" value="Update">
-						</div>
+								<input type="submit" id="update2" class="w3-button w3-block green-theme w3-left-align  " name="update2" value="Update">
+							</div>
 						</form>
 
 						<?php if (isset($_POST['subjectSub'])) {
@@ -361,12 +379,8 @@ if (isset($_POST['update2'])) {
 								));
 							}
 						}
-
-					
 						?>
-
 						<?php
-
 						if (isset($_POST['delete1'])) {
 
 							$result = $dynamodb->deleteItem(array(
