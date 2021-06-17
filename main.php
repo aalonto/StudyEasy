@@ -121,9 +121,9 @@ try {
             <h4 class="w3-center"><a id="user"><?php echo $_SESSION['firstName'] . "  " . $_SESSION['lastName']; ?></a></h4>
             <?php
             if (!empty($_SESSION['image'])) {
-              $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '';
+              $src = 'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '';
             } else {
-              $src = 'https://studyeasy.s3.us-east-1.amazonaws.com/blank.png';
+              $src = 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png';
             }
             ?>
             </p>
@@ -264,7 +264,15 @@ try {
       <div class="w3-col m9">
         <div class="w3-row-padding">
           <div class="w3-col m12">
-            <?php include 'search.php';
+            <?php include 'search.php';?>
+           </div></div>
+           <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
+
+<h3> Recommended Buddies</h3><br>
+
+
+</div>
+           <?php
             $scan_response = $dynamodb->scan(array(
               'TableName' => 'profile'
             ));
@@ -280,7 +288,32 @@ try {
             // foreach ($scan_response['Items'] as $music)
             // {
 
-
+            //   if ($_POST['addButton'] == "Add Buddy") {
+            //     $dynamodb->putItem(array(
+            //      'TableName' => 'friends',
+            //      'Item' => array(
+            //        'username1'      => array('S' => $_SESSION['username']),
+            //        'username2'    => array('S' => $_POST['buddyName']),
+            //        'status'    => array('S' => "pending")
+            //      )
+            //    ));
+            //  } elseif ($_POST['addButton'] == "Cancel Request") {
+         
+            //    $dynamodb->deleteItem(array(
+            //      'TableName' => 'friends',
+            //      'Key' => $key
+            //    ));
+            //  } elseif ($_POST['addButton'] == "Accept Request") {
+            //    $eav = $marshaler->marshalJson('{":stat": "friends"}');
+         
+            //    $dynamodb->updateItem([
+            //      'TableName' => 'friends',
+            //      'Key' => $key,
+            //      'UpdateExpression' => 'set status = :stat',
+            //      'ExpressionAttributeValues' => $eav,
+            //      'ReturnValues' => 'UPDATED_NEW'
+            //    ]);
+            //  }
             $count = 0;
             if (isset($_POST['view'])) {
 
@@ -289,6 +322,7 @@ try {
               window.location.href = 'userProfile.php';
               </script>";
             }
+
             if (!empty($pref)) {
               foreach ($scan_response['Items'] as $i) {
                 $user = $marshaler->unmarshalItem($i);
@@ -321,25 +355,27 @@ try {
 
 
             ?>
-                                  <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
 
-                                    <h3> Recommended Buddies</h3><br>
-
-
-                                  </div>
+                               
                                   <form action="" method="post" name="newUser">
                                     <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-                                      <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                                      <img src=   <?php
+                                  if (!empty($user['image'])) {
+                                      echo  'https://studyeasya3.s3.us-east-1.amazonaws.com/' . $user['image'] . '';
+                                    } else {
+                                      echo 'https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png'; 
+                                    }?>
+                                    alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
                                       <span class="w3-right w3-opacity">User Joined On: <?php $date ?></span>
                                       <h4><?php echo $user['firstName'], " ", $user['lastName'] ?> </h4><br>
                                       <p> <?php echo $user['description'] ?> </p>
                                       <hr class="w3-clear">
                                       <p>Gender: <?php echo $user['gender'] ?> </p>
 
-                                      <button type="button"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>Request</button>
-
-                                      <!-- <button type="button2"><i class="fa fa-user-plus fa-fw w3-margin-right w3-text-theme"></i>View Profile</button>
-                                  <input type="hidden" name="view" value=<?php echo $user['username'] ?>> -->
+                                      <form method="post">
+                                      <input type="hidden" name="buddyName" value=<?php echo $user['username'] ?>> 
+                                      <input type="submit" class="w3-button green-theme" name="addButton" value="Add Buddy">
+                                    </form>
 
                                       <input type="hidden" id=" view1" class="w3-button w3-block w3-left-align " name="view1" value=<?php echo $user['username'] ?>>
                                       <input type="submit" id=" view" class="w3-button green-theme " name="view" value="View Profile">
@@ -347,6 +383,7 @@ try {
                                   </form>
 
             <?php }
+            }}
                               }
                             }
                           }
@@ -355,8 +392,6 @@ try {
                     }
                   }
                 }
-              }
-            }
             ?>
 
             <!-- End Middle Column -->

@@ -24,7 +24,7 @@ $marshaler = new Marshaler();
 
 $tableName = 'profile';
 
-
+$_SESSION['viewUser'] = "jeffw";
 $eav = $marshaler->marshalJson('
       {
         ":username": "' . $_SESSION['viewUser'] . '"

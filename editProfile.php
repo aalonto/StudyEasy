@@ -38,8 +38,8 @@ $bucketName = 's3778713-a2-s3';
 // Connect to AWS
 $s3 = new S3Client([
 	'credentials' => [
-		'key' => 'AKIA3QI3KNZZCV7JMUVJ',
-		'secret' => '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'
+		'key'    => 'AKIA4WTDCA2IYDFWFGRE',
+        'secret' => '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',
 	],
 	'version' => 'latest',
 	'region'  => 'us-east-1'
@@ -192,9 +192,9 @@ if (isset($_POST['update2'])) {
 							<div class="user-profile">
 								<div class="user-avatar">
 									<?php if (!empty($_SESSION['image'])) {
-										echo '<img src="https://studyeasy.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '">';
+										echo '<img src="https://studyeasya3.s3.us-east-1.amazonaws.com/' . $_SESSION['image'] . '">';
 									} else {
-										echo '<img src="https://studyeasy.s3.us-east-1.amazonaws.com/blank.png">';
+										echo '<img src="https://studyeasya3.s3.us-east-1.amazonaws.com/blank.png">';
 									} ?>
 								</div>
 								<?php
@@ -203,7 +203,7 @@ if (isset($_POST['update2'])) {
 									$image = $_SESSION['username'] .".". $split[1];
 									try {
 										$s3->putObject([
-											'Bucket' => 'studyeasy',
+											'Bucket' => 'studyeasya3',
 											'Key' =>  $image,
 											'SourceFile' => $_FILES['img']['tmp_name'],
 											'ACL'    => 'public-read'
@@ -361,6 +361,8 @@ if (isset($_POST['update2'])) {
 								));
 							}
 						}
+
+					
 						?>
 
 						<?php
